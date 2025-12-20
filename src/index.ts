@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
+import { connectToDb } from "./database/connect-db";
+import userRoutes from "./routes/user.route";
 
 dotenv.config();
 
@@ -17,15 +18,13 @@ app.get("/", (_req, res) => {
   res.send("Yumm API");
 });
 
+app.use("/api", userRoutes);
+
 // MongoDB connection
-mongoose
-  .connect(process.env.MONGO_URI as string)
-  .then(() => {
-    console.log("MongoDB connected");
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("MongoDB connection failed:", err);
+connectToDb().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
   });
+}).catch((err) => {
+  console.error("Failed to start server", err);
+});
