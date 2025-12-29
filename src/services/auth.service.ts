@@ -17,8 +17,9 @@ export class AuthService {
 
     async register(payload: RegisterDto): Promise<{ token: string; user: SafeUser }> {
         const data = RegisterDto.parse(payload);
+        const normalizedEmail = data.email.toLowerCase();
         const existingByUid = await this.userRepository.getUser(data.uid);
-        const existingByEmail = await this.userRepository.getUserByEmail(data.email);
+        const existingByEmail = await this.userRepository.getUserByEmail(normalizedEmail);
         if (existingByUid || existingByEmail) {
             throw new HttpError(409, "User already exists");
         }
@@ -27,7 +28,7 @@ export class AuthService {
         const userToCreate: UserType = {
             uid: data.uid,
             fullName: data.fullName,
-            email: data.email,
+            email: normalizedEmail,
             allergenicIngredients: data.allergenicIngredients,
             authProvider: data.authProvider,
             password: hashedPassword,
@@ -42,9 +43,10 @@ export class AuthService {
 
     async login(payload: LoginDto): Promise<{ token: string; user: SafeUser }> {
         const data = LoginDto.parse(payload);
-        const user = await this.userRepository.getUserByEmail(data.email);
+        const normalizedEmail = data.email.toLowerCase();
+        const user = await this.userRepository.getUserByEmail(normalizedEmail);
         if (!user) {
-            throw new HttpError(400, "No user found");
+            throw new HttpError(404, "No user found");
         }
 
         const validPassword = await bcryptjs.compare(data.password, user.password);

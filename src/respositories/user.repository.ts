@@ -4,8 +4,8 @@ import { UserType } from "../types/user.type";
 export interface IUserRepository {
     createUser(newUser: UserType): Promise<UserType>;
     getUser(uid: string): Promise<UserType | null>;
-    getUserByEmail(email: String): Promise<UserType|null>;
-    getAllUsers():Promise<Array<UserType>>;
+    getUserByEmail(email: string): Promise<UserType | null>;
+    getAllUsers(): Promise<Array<UserType>>;
     updateUser(uid: string, updates: Partial<UserType>): Promise<UserType | null>;
     deleteUser(uid: string): Promise<void>;
 }
@@ -26,7 +26,7 @@ const userSchema = new Schema<UserDocument>(
     {
         uid: { type: String, required: true, unique: true, index: true },
         fullName: { type: String, required: true },
-        email: { type: String, required: true, unique: true, index: true },
+        email: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
         allergenicIngredients: { type: [String], default: [] },
         authProvider: { type: String, required: true },
         password: { type: String, required: true },
@@ -43,10 +43,10 @@ export class UserRepository implements IUserRepository {
     constructor(model: Model<UserDocument> = UserModel) {
         this.model = model;
     }
-    async getUserByEmail(email: String): Promise<UserType | null> {
-        const doc = await this.model.findOne({email}).exec();
-        return doc? this.mapToUser(doc):null;
-
+    async getUserByEmail(email: string): Promise<UserType | null> {
+        const normalizedEmail = email.toLowerCase();
+        const doc = await this.model.findOne({ email: normalizedEmail }).exec();
+        return doc ? this.mapToUser(doc) : null;
     }
     async getAllUsers(): Promise<Array<UserType>> {
         const docs = await this.model.find().exec();
@@ -54,7 +54,10 @@ export class UserRepository implements IUserRepository {
     }
 
     async createUser(newUser: UserType): Promise<UserType> {
-        const created = await this.model.create(newUser);
+        const created = await this.model.create({
+            ...newUser,
+            email: newUser.email.toLowerCase(),
+        });
         return this.mapToUser(created);
     }
 

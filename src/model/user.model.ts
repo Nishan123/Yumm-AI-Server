@@ -1,20 +1,18 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { UserType } from "../types/user.type";
-import { email } from "zod";
 
 const UserScheme: Schema = new Schema(
     {
-        uid: { type: String },
-        fullName: { type: String },
-        email: { type: String, unique: true },
-        allergenicIngredients: { type: Array },
-        authProvider: { type: String },
-        password: { type: String },
-
-
-    }, {
-    timestamps: true
-}
+        uid: { type: String, required: true, unique: true, index: true },
+        fullName: { type: String, required: true },
+        email: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
+        allergenicIngredients: { type: [String], default: [] },
+        authProvider: { type: String, required: true },
+        password: { type: String, required: true },
+    },
+    {
+        timestamps: true,
+    }
 );
 export interface IUser extends UserType, Document {
     _id: mongoose.Types.ObjectId;

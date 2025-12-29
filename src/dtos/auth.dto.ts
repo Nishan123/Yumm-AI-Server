@@ -19,7 +19,7 @@ export const RegisterDto = UserScheme.pick({
 export type RegisterDto = z.infer<typeof RegisterDto>;
 
 export const LoginDto = z.object({
-    email: z.email(),
+    email: z.email({ message: "Invalid email format" }),
     password: z.string().min(6),
 });
 export type LoginDto = z.infer<typeof LoginDto>;
