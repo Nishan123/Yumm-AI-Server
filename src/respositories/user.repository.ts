@@ -1,11 +1,12 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
-import { User } from "../types/user.type";
+import { UserType } from "../types/user.type";
 
 export interface IUserRepository {
-    createUser(newUser: User): Promise<User>;
-    getUser(uid: string): Promise<User | null>;
-    getAllUsers():Promise<Array<User>>;
-    updateUser(uid: string, updates: Partial<User>): Promise<User | null>;
+    createUser(newUser: UserType): Promise<UserType>;
+    getUser(uid: string): Promise<UserType | null>;
+    getUserByEmail(email: String): Promise<UserType|null>;
+    getAllUsers():Promise<Array<UserType>>;
+    updateUser(uid: string, updates: Partial<UserType>): Promise<UserType | null>;
     deleteUser(uid: string): Promise<void>;
 }
 
@@ -16,6 +17,7 @@ export interface UserDocument extends Document {
     email: string;
     allergenicIngredients: string[];
     authProvider: string;
+    password: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -27,6 +29,7 @@ const userSchema = new Schema<UserDocument>(
         email: { type: String, required: true, unique: true, index: true },
         allergenicIngredients: { type: [String], default: [] },
         authProvider: { type: String, required: true },
+        password: { type: String, required: true },
     },
     { timestamps: true }
 );
@@ -40,22 +43,27 @@ export class UserRepository implements IUserRepository {
     constructor(model: Model<UserDocument> = UserModel) {
         this.model = model;
     }
-    async getAllUsers(): Promise<Array<User>> {
+    async getUserByEmail(email: String): Promise<UserType | null> {
+        const doc = await this.model.findOne({email}).exec();
+        return doc? this.mapToUser(doc):null;
+
+    }
+    async getAllUsers(): Promise<Array<UserType>> {
         const docs = await this.model.find().exec();
         return docs.map((doc) => this.mapToUser(doc));
     }
 
-    async createUser(newUser: User): Promise<User> {
+    async createUser(newUser: UserType): Promise<UserType> {
         const created = await this.model.create(newUser);
         return this.mapToUser(created);
     }
 
-    async getUser(uid: string): Promise<User | null> {
+    async getUser(uid: string): Promise<UserType | null> {
         const doc = await this.model.findOne({ uid }).exec();
         return doc ? this.mapToUser(doc) : null;
     }
 
-    async updateUser(uid: string, updates: Partial<User>): Promise<User | null> {
+    async updateUser(uid: string, updates: Partial<UserType>): Promise<UserType | null> {
         const doc = await this.model
             .findOneAndUpdate({ uid }, { $set: updates }, { new: true })
             .exec();
@@ -66,7 +74,7 @@ export class UserRepository implements IUserRepository {
         await this.model.deleteOne({ uid }).exec();
     }
 
-    private mapToUser(doc: UserDocument): User {
+    private mapToUser(doc: UserDocument): UserType {
         return {
             uid: doc.uid,
             fullName: doc.fullName,
@@ -75,6 +83,7 @@ export class UserRepository implements IUserRepository {
             authProvider: doc.authProvider,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt,
+            password: doc.password
         };
     }
 }

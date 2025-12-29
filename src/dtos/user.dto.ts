@@ -1,16 +1,5 @@
-import {z} from "zod";
+import { z } from "zod";
 import { UserScheme } from "../types/user.type";
-
-export const CreateUserDto=UserScheme.pick({
-    uid:true,
-    fullName:true,
-    email:true,
-    allergenicIngredients:true,
-    authProvider:true,
-    createdAt:true,
-    updatedAt:true,
-});
-export type CreateUserDto = z.infer<typeof CreateUserDto>;
 
 export const UpdateUserDto = UserScheme.pick({
     uid: true,

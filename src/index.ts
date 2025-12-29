@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { connectToDb } from "./database/connect-db";
 import userRoutes from "./routes/user.route";
+import authRoutes from "./routes/auth.route";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api", userRoutes);
+app.use("/api", authRoutes);
 
 // MongoDB connection
 connectToDb().then(() => {

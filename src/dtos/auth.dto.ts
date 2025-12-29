@@ -1,0 +1,25 @@
+import { z } from "zod";
+import { UserScheme } from "../types/user.type";
+
+export const RegisterDto = UserScheme.pick({
+    uid: true,
+    fullName: true,
+    email: true,
+    allergenicIngredients: true,
+    authProvider: true,
+    createdAt: true,
+    updatedAt: true,
+    password: true,
+}).extend({
+    confirmPassword: z.string().min(6),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Password and Confirm Password must be same",
+    path: ["confirmPassword"],
+});
+export type RegisterDto = z.infer<typeof RegisterDto>;
+
+export const LoginDto = z.object({
+    email: z.email(),
+    password: z.string().min(6),
+});
+export type LoginDto = z.infer<typeof LoginDto>;

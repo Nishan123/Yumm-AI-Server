@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CreateUserDto, UpdateUserDto } from "../dtos/user.dto";
+import { UpdateUserDto } from "../dtos/user.dto";
 import { UserService } from "../services/user.service";
 
 export class UserController {
@@ -15,16 +15,6 @@ export class UserController {
 			res.json(users);
 		} catch (error) {
 			res.status(500).json({ message: (error as Error).message });
-		}
-	};
-
-	createUser = async (req: Request, res: Response): Promise<void> => {
-		try {
-			const payload: CreateUserDto = req.body;
-			const user = await this.userService.createUser(payload);
-			res.status(201).json(user);
-		} catch (error) {
-			res.status(400).json({ message: (error as Error).message });
 		}
 	};
 
