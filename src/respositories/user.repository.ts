@@ -17,6 +17,7 @@ export interface UserDocument extends Document {
     email: string;
     allergenicIngredients: string[];
     authProvider: string;
+    role: "admin" | "user";
     password: string;
     createdAt: Date;
     updatedAt: Date;
@@ -29,6 +30,7 @@ const userSchema = new Schema<UserDocument>(
         email: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
         allergenicIngredients: { type: [String], default: [] },
         authProvider: { type: String, required: true },
+        role: { type: String, enum: ["admin", "user"], default: "user" },
         password: { type: String, required: true },
     },
     { timestamps: true }
@@ -57,6 +59,7 @@ export class UserRepository implements IUserRepository {
         const created = await this.model.create({
             ...newUser,
             email: newUser.email.toLowerCase(),
+            role: newUser.role ?? "user",
         });
         return this.mapToUser(created);
     }
@@ -84,6 +87,7 @@ export class UserRepository implements IUserRepository {
             email: doc.email,
             allergenicIngredients: doc.allergenicIngredients,
             authProvider: doc.authProvider,
+            role: doc.role,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt,
             password: doc.password

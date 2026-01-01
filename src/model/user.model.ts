@@ -8,6 +8,7 @@ const UserScheme: Schema = new Schema(
         email: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
         allergenicIngredients: { type: [String], default: [] },
         authProvider: { type: String, required: true },
+        role: { type: String, enum: ["admin", "user"], default: "user" },
         password: { type: String, required: true },
     },
     {

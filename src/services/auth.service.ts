@@ -31,6 +31,7 @@ export class AuthService {
             email: normalizedEmail,
             allergenicIngredients: data.allergenicIngredients,
             authProvider: data.authProvider,
+            role: data.role ?? "user",
             password: hashedPassword,
             createdAt: data.createdAt ?? new Date(),
             updatedAt: data.updatedAt ?? new Date(),
