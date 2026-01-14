@@ -7,7 +7,6 @@ export const RegisterDto = UserScheme.pick({
     email: true,
     allergenicIngredients: true,
     authProvider: true,
-    role: true,
     createdAt: true,
     updatedAt: true,
     password: true,
