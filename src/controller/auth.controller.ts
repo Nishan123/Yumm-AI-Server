@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { LoginDto, RegisterDto } from "../dtos/auth.dto";
 import { HttpError } from "../errors/http-error";
 import { AuthService } from "../services/auth.service";
+import { sendSuccess, sendError } from "../utils/response.util";
 
 export class AuthController {
     private authService: AuthService;
@@ -15,37 +16,37 @@ export class AuthController {
         try {
             const payload: RegisterDto = req.body;
             const result = await this.authService.register(payload);
-            res.status(201).json(result);
+            sendSuccess(res, result, 201);
         } catch (error) {
             if (error instanceof ZodError) {
-                res.status(422).json({ message: "Validation failed", issues: error.issues });
+                sendError(res, "Validation failed", 422, error.issues);
                 return;
             }
             if (error instanceof HttpError) {
-                res.status(error.statusCode).json({ message: error.message });
+                sendError(res, error.message, error.statusCode);
                 return;
             }
-            res.status(500).json({ message: "Unexpected error" });
+            sendError(res, "Unexpected error", 500);
         }
     };
 
-    
+
     // Login Function 
     login = async (req: Request, res: Response): Promise<void> => {
         try {
             const payload: LoginDto = req.body;
             const result = await this.authService.login(payload);
-            res.status(200).json(result);
+            sendSuccess(res, result, 200);
         } catch (error) {
             if (error instanceof ZodError) {
-                res.status(422).json({ message: "Validation failed", issues: error.issues });
+                sendError(res, "Validation failed", 422, error.issues);
                 return;
             }
             if (error instanceof HttpError) {
-                res.status(error.statusCode).json({ message: error.message });
+                sendError(res, error.message, error.statusCode);
                 return;
             }
-            res.status(500).json({ message: "Unexpected error" });
+            sendError(res, "Unexpected error", 500);
         }
     };
 }

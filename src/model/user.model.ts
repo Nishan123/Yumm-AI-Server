@@ -6,6 +6,7 @@ const UserScheme: Schema = new Schema(
         uid: { type: String, required: true, unique: true, index: true },
         fullName: { type: String, required: true },
         email: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
+        profilePic: { type: String, required: true },
         allergenicIngredients: { type: [String], default: [] },
         authProvider: { type: String, required: true },
         role: { type: String, enum: ["admin", "user"], default: "user" },

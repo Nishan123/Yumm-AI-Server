@@ -24,13 +24,14 @@ export class UserService {
         if (!existing) {
             return null;
         }
-        const { uid, fullName, email, allergenicIngredients, authProvider, updatedAt } = data;
+        const { uid, fullName, email, allergenicIngredients, authProvider, updatedAt, profilePic } = data;
         const updates: Partial<UserType> = {};
         if (fullName !== undefined) updates.fullName = fullName;
         if (email !== undefined) updates.email = email;
         if (allergenicIngredients !== undefined) updates.allergenicIngredients = allergenicIngredients;
         if (authProvider !== undefined) updates.authProvider = authProvider;
         if (updatedAt !== undefined) updates.updatedAt = updatedAt;
+        if (profilePic !== undefined) updates.profilePic = profilePic;
 
         return this.userRepository.updateUser(uid, updates);
     }

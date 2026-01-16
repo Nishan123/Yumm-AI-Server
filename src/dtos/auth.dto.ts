@@ -10,6 +10,7 @@ export const RegisterDto = UserScheme.pick({
     createdAt: true,
     updatedAt: true,
     password: true,
+    profilePic: true
 }).extend({
     confirmPassword: z.string().min(6),
 }).refine((data) => data.password === data.confirmPassword, {

@@ -32,6 +32,7 @@ export class AuthService {
             allergenicIngredients: data.allergenicIngredients,
             authProvider: data.authProvider,
             role: "user",
+            profilePic: data.profilePic,
             password: hashedPassword,
             createdAt: data.createdAt ?? new Date(),
             updatedAt: data.updatedAt ?? new Date(),

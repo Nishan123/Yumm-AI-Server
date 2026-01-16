@@ -7,11 +7,13 @@ export const UpdateUserDto = UserScheme.pick({
     email: true,
     allergenicIngredients: true,
     authProvider: true,
+
 }).extend({
     fullName: UserScheme.shape.fullName.optional(),
     email: UserScheme.shape.email.optional(),
     allergenicIngredients: UserScheme.shape.allergenicIngredients.optional(),
     authProvider: UserScheme.shape.authProvider.optional(),
     updatedAt: UserScheme.shape.updatedAt.optional(),
+    profilePic: UserScheme.shape.profilePic.optional(),
 });
 export type UpdateUserDto = z.infer<typeof UpdateUserDto>;

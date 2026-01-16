@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config';
+import { sendError } from '../utils/response.util';
 
 // Extend Express Request to include user
 declare global {
@@ -17,16 +18,13 @@ declare global {
 
 export function authorizedMiddleWare(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ 
-            success: false, 
-            message: 'No token provided' 
-        });
+        return sendError(res, 'No token provided', 401);
     }
-    
+
     const token = authHeader.split(' ')[1];
-    
+
     try {
         const decoded = jwt.verify(token, JWT_SECRET) as {
             id: string;
@@ -36,9 +34,6 @@ export function authorizedMiddleWare(req: Request, res: Response, next: NextFunc
         req.user = decoded;
         return next();
     } catch (error) {
-        return res.status(401).json({ 
-            success: false, 
-            message: 'Invalid or expired token' 
-        });
+        return sendError(res, 'Invalid or expired token', 401);
     }
 }

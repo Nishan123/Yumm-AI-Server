@@ -15,6 +15,7 @@ export interface UserDocument extends Document {
     uid: string;
     fullName: string;
     email: string;
+    profilePic: string;
     allergenicIngredients: string[];
     authProvider: string;
     role: "admin" | "user";
@@ -28,6 +29,7 @@ const userSchema = new Schema<UserDocument>(
         uid: { type: String, required: true, unique: true, index: true },
         fullName: { type: String, required: true },
         email: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
+        profilePic: { type: String, required: true },
         allergenicIngredients: { type: [String], default: [] },
         authProvider: { type: String, required: true },
         role: { type: String, enum: ["admin", "user"], default: "user" },
@@ -85,6 +87,7 @@ export class UserRepository implements IUserRepository {
             uid: doc.uid,
             fullName: doc.fullName,
             email: doc.email,
+            profilePic: doc.profilePic,
             allergenicIngredients: doc.allergenicIngredients,
             authProvider: doc.authProvider,
             role: doc.role,
