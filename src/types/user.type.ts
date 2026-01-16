@@ -8,7 +8,7 @@ export const UserScheme = z.object({
     allergenicIngredients: z.array(z.string()).default([]),
     authProvider: z.string().min(1, { error: "Auth provider is required" }),
     role: z.enum(["admin", "user"]).default("user"),
-    password: z.string().min(6, { error: "Password must be at least 6 char long" }),
+    password: z.string().min(6, { error: "Password must be at least 6 char long" }).optional(),
     createdAt: z.coerce.date().default(() => new Date()),
     updatedAt: z.coerce.date().default(() => new Date()),
 });

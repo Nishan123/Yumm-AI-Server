@@ -15,3 +15,16 @@ if (process.env.JWT_SECRET.length < 32) {
     throw new Error("JWT_SECRET must be at least 32 characters long");
 }
 export const JWT_SECRET: string = process.env.JWT_SECRET;
+
+// Google OAuth Configuration
+if (!process.env.CLIENT_ID) {
+    throw new Error("CLIENT_ID environment variable is required");
+}
+export const GOOGLE_CLIENT_ID: string = process.env.CLIENT_ID;
+
+if (!process.env.CLIENT_SECRET) {
+    throw new Error("CLIENT_SECRET environment variable is required");
+}
+export const GOOGLE_CLIENT_SECRET: string = process.env.CLIENT_SECRET;
+
+export const GOOGLE_CALLBACK_URL: string = process.env.CALLBACK_URL || "http://localhost:3000/auth/google/callback";

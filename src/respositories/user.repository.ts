@@ -33,7 +33,7 @@ const userSchema = new Schema<UserDocument>(
         allergenicIngredients: { type: [String], default: [] },
         authProvider: { type: String, required: true },
         role: { type: String, enum: ["admin", "user"], default: "user" },
-        password: { type: String, required: true },
+        password: { type: String, required: false },
     },
     { timestamps: true }
 );

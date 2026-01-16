@@ -24,3 +24,9 @@ export const LoginDto = z.object({
     password: z.string().min(6),
 });
 export type LoginDto = z.infer<typeof LoginDto>;
+
+// Google OAuth DTO
+export const GoogleAuthDto = z.object({
+    idToken: z.string().min(1, { error: "Google ID token is required" }),
+});
+export type GoogleAuthDto = z.infer<typeof GoogleAuthDto>;
