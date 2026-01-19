@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectToDb } from "./database/connect-db";
 import userRoutes from "./routes/user.route";
 import authRoutes from "./routes/auth.route";
+import recipeRoutes from "./routes/recipe.route";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.get("/", (_req, res) => {
 
 app.use("/api", userRoutes);
 app.use("/api", authRoutes);
+app.use("/api", recipeRoutes);
 
 // MongoDB connection
 connectToDb().then(() => {
