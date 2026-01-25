@@ -25,6 +25,7 @@ const RecipeSchema: Schema = new Schema(
         experienceLevel: { type: String, enum: ["newBie", "canCook", "expert"], required: true },
         estCookingTime: { type: String, required: true },
         description: { type: String, required: true },
+        mealType: {type: String, required:true},
         cusine: { type: String, required: true },
         calorie: { type: Number, required: true },
         images: { type: [String], required: true },

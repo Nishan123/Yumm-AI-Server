@@ -13,6 +13,7 @@ export const RecipeScheme = z.object({
     experienceLevel: z.enum(["newBie", "canCook", "expert"]),
     estCookingTime: z.string().min(1, { error: "Estimated time required" }),
     description: z.string().min(1, { error: "Description required" }),
+    mealType:z.string().min(1,{error:"Meal type required"}),
     cusine: z.string().min(1, { error: "Cusine require" }),
     calorie: z.number().positive({ message: "Calorie must be > 0" }),
     images: z.array(z.string()).min(1, { error: "Images required" }),

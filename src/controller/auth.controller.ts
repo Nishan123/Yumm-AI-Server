@@ -26,6 +26,7 @@ export class AuthController {
                 sendError(res, error.message, error.statusCode);
                 return;
             }
+            console.error("Register error:", error);
             sendError(res, "Unexpected error", 500);
         }
     };

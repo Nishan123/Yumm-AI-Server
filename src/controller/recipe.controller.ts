@@ -81,4 +81,23 @@ export class RecipeController {
             sendError(res, (error as Error).message, 500);
         }
     };
+
+    uploadRecipeImages = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const files = req.files as Express.Multer.File[];
+            if (!files || files.length === 0) {
+                sendError(res, "No images uploaded", 400);
+                return;
+            }
+
+            // Construct public URLs
+            const imageUrls = files.map(
+                (file) => `http://localhost:${process.env.PORT || 5000}/public/recipeImages/${file.filename}`
+            );
+
+            sendSuccess(res, { images: imageUrls }, 200, "Images uploaded successfully");
+        } catch (error) {
+            sendError(res, (error as Error).message, 500);
+        }
+    };
 }

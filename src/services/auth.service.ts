@@ -44,6 +44,7 @@ export class AuthService {
             password: hashedPassword,
             createdAt: data.createdAt ?? new Date(),
             updatedAt: data.updatedAt ?? new Date(),
+            isSubscribedUser: false,
         };
 
         const created = await this.userRepository.createUser(userToCreate);
@@ -112,6 +113,7 @@ export class AuthService {
             password: undefined, // No password for OAuth users
             createdAt: new Date(),
             updatedAt: new Date(),
+            isSubscribedUser: false,
         };
 
         const created = await this.userRepository.createUser(newUser);
@@ -129,7 +131,11 @@ export class AuthService {
     }
 
     private sanitizeUser(user: UserType): SafeUser {
-        const { password, ...safeUser } = user;
+        // Convert Mongoose document to plain object if needed
+        const userObj = typeof (user as any).toObject === 'function'
+            ? (user as any).toObject()
+            : user;
+        const { password, _id, __v, ...safeUser } = userObj;
         return safeUser;
     }
 }

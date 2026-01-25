@@ -32,6 +32,7 @@ export class UserService {
         if (authProvider !== undefined) updates.authProvider = authProvider;
         if (updatedAt !== undefined) updates.updatedAt = updatedAt;
         if (profilePic !== undefined) updates.profilePic = profilePic;
+        if (data.isSubscribedUser !== undefined) updates.isSubscribedUser = data.isSubscribedUser;
 
         return this.userRepository.updateUser(uid, updates);
     }
@@ -43,5 +44,13 @@ export class UserService {
         }
         await this.userRepository.deleteUser(uid);
         return true;
+    }
+
+    async updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null> {
+        const existing = await this.userRepository.getUser(uid);
+        if (!existing) {
+            return null;
+        }
+        return this.userRepository.updateProfilePic(uid, profilePicUrl);
     }
 }

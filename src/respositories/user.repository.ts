@@ -8,6 +8,7 @@ export interface IUserRepository {
     getUserByEmail(email: string): Promise<IUser | null>;
     getAllUsers(): Promise<Array<IUser>>;
     updateUser(uid: string, updates: Partial<IUser>): Promise<IUser | null>;
+    updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null>;
     deleteUser(uid: string): Promise<void>;
 }
 
@@ -49,5 +50,14 @@ export class UserRepository implements IUserRepository {
         await UserModel.deleteOne({ uid }).exec();
     }
 
-
+    async updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null> {
+        const doc = await UserModel
+            .findOneAndUpdate(
+                { uid },
+                { $set: { profilePic: profilePicUrl, updatedAt: new Date() } },
+                { new: true }
+            )
+            .exec();
+        return doc?.profilePic ? doc.profilePic : null;
+    }
 }

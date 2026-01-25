@@ -22,6 +22,7 @@ export const UpdateRecipeDto = RecipeScheme.pick({
     experienceLevel: RecipeScheme.shape.experienceLevel.optional(),
     estCookingTime: RecipeScheme.shape.estCookingTime.optional(),
     description: RecipeScheme.shape.description.optional(),
+    mealType: RecipeScheme.shape.mealType.optional(),
     cusine: RecipeScheme.shape.cusine.optional(),
     calorie: RecipeScheme.shape.calorie.optional(),
     images: RecipeScheme.shape.images.optional(),

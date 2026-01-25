@@ -61,4 +61,31 @@ export class UserController {
 			sendError(res, (error as Error).message, 500);
 		}
 	};
+
+	uploadProfilePic = async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { uid } = req.params;
+
+			if (!req.file) {
+				sendError(res, "No file uploaded", 400);
+				return;
+			}
+
+			// Construct the profile picture URL
+			const port = process.env.PORT || 5000;
+			const ext = req.file.filename.split('.').pop();
+			const profilePicUrl = `http://localhost:${port}/public/profilePic/pp-${uid}.${ext}`;
+
+			// Update user's profilePic in database
+			const updatedUser = await this.userService.updateProfilePic(uid, profilePicUrl);
+			if (!updatedUser) {
+				sendError(res, "User not found", 404);
+				return;
+			}
+
+			sendSuccess(res, updatedUser, 200, "Profile picture uploaded successfully");
+		} catch (error) {
+			sendError(res, (error as Error).message, 500);
+		}
+	};
 }
