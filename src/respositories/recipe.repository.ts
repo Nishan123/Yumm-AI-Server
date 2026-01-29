@@ -4,13 +4,14 @@ export interface IRecipeReposiory {
     saveRecipe(newRecipe: IRecipe): Promise<IRecipe>;
     getRecipe(recipeId: string): Promise<IRecipe | null>;
     getAllRecipe(): Promise<Array<IRecipe>>;
+    getPublicRecipes(): Promise<Array<IRecipe>>;
     getCurrentUserRecipe(userId: string): Promise<Array<IRecipe>>;
     updateRecipe(recipe: IRecipe): Promise<IRecipe>;
     deleteRecipe(recipeId: string): Promise<void>;
 }
 
 export class RecipeRepository implements IRecipeReposiory {
-    
+
     async getCurrentUserRecipe(userId: string): Promise<Array<IRecipe>> {
         const docs = await RecipeModel.find({ generatedBy: userId }).limit(15);
         return docs;
@@ -26,6 +27,10 @@ export class RecipeRepository implements IRecipeReposiory {
     async getAllRecipe(): Promise<Array<IRecipe>> {
         const recipes = await RecipeModel.find().exec();
         return recipes.map((recipe) => recipe);
+    }
+    async getPublicRecipes(): Promise<Array<IRecipe>> {
+        const recipes = await RecipeModel.find({ isPublic: true }).sort({ createdAt: -1 }).limit(50).exec();
+        return recipes;
     }
     async updateRecipe(recipe: IRecipe): Promise<IRecipe> {
         const updatedRecipe = await RecipeModel.findOneAndUpdate(

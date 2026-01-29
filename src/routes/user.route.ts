@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controller/user.controller";
 import { authorizedMiddleWare } from "../middlewears/authorized.middleware";
-import { uploadProfilePic } from "../middlewears/upload.middleware";
+import { uploadProfilePic } from "../middlewears/profilePic.middleware";
 
 const router = Router();
 const userController = new UserController();

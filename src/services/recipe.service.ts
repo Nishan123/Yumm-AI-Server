@@ -21,6 +21,10 @@ export class RecipeService {
         return this.recipeRepository.getAllRecipe();
     }
 
+    async getPublicRecipes(): Promise<Array<IRecipe>> {
+        return this.recipeRepository.getPublicRecipes();
+    }
+
     async getCurrentUserRecipes(userId: string): Promise<Array<IRecipe>> {
         return this.recipeRepository.getCurrentUserRecipe(userId);
     }

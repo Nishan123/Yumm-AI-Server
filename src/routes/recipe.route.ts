@@ -9,6 +9,7 @@ router.post("/saveRecipe", recipeController.saveRecipe);
 router.get("/recipe/:recipeId", recipeController.getRecipe);
 router.get("/userRecipe/:userId", recipeController.getCurrentUserRecipes);
 router.get("/allRecipes", recipeController.getAllRecipes);
+router.get("/publicRecipes", recipeController.getPublicRecipes);
 router.put("/recipe/:recipeId", recipeController.updateRecipe);
 router.delete("/recipe/:recipeId", recipeController.deleteRecipe);
 router.post(

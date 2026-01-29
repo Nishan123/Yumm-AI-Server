@@ -5,6 +5,7 @@ export const KitchenToolSchema: Schema = new Schema(
         toolId: { type: String, required: true },
         toolName: { type: String, required: true },
         imageUrl: { type: String, required: true },
+        isReady: { type: Boolean, default: false },
     },
     { _id: false }
 );
