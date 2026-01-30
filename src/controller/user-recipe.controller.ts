@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserRecipeService } from "../services/user-recipe.service";
 import { sendSuccess, sendError } from "../utils/response.util";
 import { IUserRecipe } from "../model/user-recipe.model";
+import { IRecipe } from "../model/recipe.model";
 
 export class UserRecipeController {
     private userRecipeService: UserRecipeService;
@@ -9,6 +10,34 @@ export class UserRecipeController {
     constructor(userRecipeService: UserRecipeService = new UserRecipeService()) {
         this.userRecipeService = userRecipeService;
     }
+
+    /**
+     * Save a private recipe directly to user's cookbook
+     * POST /api/cookbook/private
+     * Body: Recipe data with userId
+     */
+    savePrivateRecipe = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const recipeData = req.body as IRecipe & { userId: string };
+            const { userId } = recipeData;
+
+            if (!userId) {
+                sendError(res, "userId is required", 400);
+                return;
+            }
+
+            if (!recipeData.recipeId) {
+                sendError(res, "recipeId is required", 400);
+                return;
+            }
+
+            const userRecipe = await this.userRecipeService.savePrivateRecipe(recipeData, userId);
+            sendSuccess(res, userRecipe, 201, "Private recipe saved to cookbook successfully");
+        } catch (error) {
+            const message = (error as Error).message;
+            sendError(res, message, 500);
+        }
+    };
 
     /**
      * Add a recipe to user's cookbook

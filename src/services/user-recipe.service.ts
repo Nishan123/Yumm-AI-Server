@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { IUserRecipe } from "../model/user-recipe.model";
+import { IRecipe } from "../model/recipe.model";
 import { IRecipeReposiory, RecipeRepository } from "../respositories/recipe.repository";
 import { IUserRecipeRepository, UserRecipeRepository } from "../respositories/user-recipe.repository";
 
@@ -13,6 +14,59 @@ export class UserRecipeService {
     ) {
         this.userRecipeRepository = userRecipeRepository;
         this.recipeRepository = recipeRepository;
+    }
+
+    /**
+     * Save a private recipe directly to user's cookbook
+     * This is used when a user generates a recipe and marks it as private.
+     * Private recipes are NOT saved to the public Recipe collection.
+     */
+    async savePrivateRecipe(recipeData: IRecipe, userId: string): Promise<IUserRecipe> {
+        const userRecipeId = uuidv4();
+        
+        const userRecipe: Partial<IUserRecipe> = {
+            userRecipeId,
+            userId,
+            originalRecipeId: recipeData.recipeId, // Use the generated recipeId as reference
+            originalGeneratedBy: userId, // The user is the creator of this private recipe
+            recipeName: recipeData.recipeName,
+            ingredients: recipeData.ingredients.map(ing => ({
+                ingredientId: ing.ingredientId,
+                name: ing.name,
+                quantity: ing.quantity,
+                unit: ing.unit,
+                imageUrl: ing.imageUrl,
+                isReady: false,
+            })),
+            steps: recipeData.steps.map((step: any) => ({
+                id: step.id,
+                instruction: step.instruction || step.step,
+                isDone: false,
+            })),
+            initialPreparation: recipeData.initialPreparation.map((prep: any) => ({
+                id: prep.id,
+                instruction: prep.instruction || prep.step,
+                isDone: false,
+            })),
+            kitchenTools: recipeData.kitchenTools.map(tool => ({
+                toolId: tool.toolId,
+                toolName: tool.toolName,
+                imageUrl: tool.imageUrl,
+                isReady: false,
+            })),
+            experienceLevel: recipeData.experienceLevel,
+            estCookingTime: recipeData.estCookingTime,
+            description: recipeData.description,
+            mealType: recipeData.mealType,
+            cuisine: recipeData.cuisine,
+            calorie: recipeData.calorie,
+            images: recipeData.images,
+            nutrition: recipeData.nutrition,
+            servings: recipeData.servings,
+            addedAt: new Date(),
+        };
+
+        return this.userRecipeRepository.savePrivateRecipe(userRecipe as IUserRecipe);
     }
 
     /**

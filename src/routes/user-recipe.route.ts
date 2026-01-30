@@ -4,6 +4,9 @@ import { UserRecipeController } from "../controller/user-recipe.controller";
 const router = Router();
 const userRecipeController = new UserRecipeController();
 
+// Save private recipe directly to cookbook (not to public recipes)
+router.post("/cookbook/private", userRecipeController.savePrivateRecipe);
+
 // Add recipe to cookbook
 router.post("/cookbook/add", userRecipeController.addToCookbook);
 

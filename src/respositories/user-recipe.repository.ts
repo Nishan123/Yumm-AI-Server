@@ -2,6 +2,7 @@ import { UserRecipeModel, IUserRecipe } from "../model/user-recipe.model";
 
 export interface IUserRecipeRepository {
     addToCookbook(userRecipe: IUserRecipe): Promise<IUserRecipe>;
+    savePrivateRecipe(userRecipe: IUserRecipe): Promise<IUserRecipe>;
     getUserCookbook(userId: string): Promise<Array<IUserRecipe>>;
     getUserRecipe(userRecipeId: string): Promise<IUserRecipe | null>;
     getUserRecipeByOriginal(userId: string, originalRecipeId: string): Promise<IUserRecipe | null>;
@@ -13,6 +14,11 @@ export interface IUserRecipeRepository {
 export class UserRecipeRepository implements IUserRecipeRepository {
     
     async addToCookbook(userRecipe: IUserRecipe): Promise<IUserRecipe> {
+        const created = await UserRecipeModel.create(userRecipe);
+        return created;
+    }
+
+    async savePrivateRecipe(userRecipe: IUserRecipe): Promise<IUserRecipe> {
         const created = await UserRecipeModel.create(userRecipe);
         return created;
     }
