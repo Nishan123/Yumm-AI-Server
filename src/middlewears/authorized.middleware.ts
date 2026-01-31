@@ -11,6 +11,7 @@ declare global {
                 id: string;
                 email: string;
                 fullName: string;
+                role?: string;
             };
         }
     }
@@ -30,6 +31,7 @@ export function authorizedMiddleWare(req: Request, res: Response, next: NextFunc
             id: string;
             email: string;
             fullName: string;
+            role?: string;
         };
         req.user = decoded;
         return next();

@@ -53,4 +53,34 @@ export class UserService {
         }
         return this.userRepository.updateProfilePic(uid, profilePicUrl);
     }
+
+    // Admin operations
+    async createUser(userData: UserType): Promise<UserType> {
+        return this.userRepository.createUser(userData);
+    }
+
+    async getUserById(id: string): Promise<UserType | null> {
+        return this.userRepository.getUserById(id);
+    }
+
+    async getUserByEmail(email: string): Promise<UserType | null> {
+        return this.userRepository.getUserByEmail(email);
+    }
+
+    async updateUserById(id: string, updates: any): Promise<UserType | null> {
+        const existing = await this.userRepository.getUserById(id);
+        if (!existing) {
+            return null;
+        }
+        return this.userRepository.updateUserById(id, updates);
+    }
+
+    async deleteUserById(id: string): Promise<boolean> {
+        const existing = await this.userRepository.getUserById(id);
+        if (!existing) {
+            return false;
+        }
+        await this.userRepository.deleteUserById(id);
+        return true;
+    }
 }

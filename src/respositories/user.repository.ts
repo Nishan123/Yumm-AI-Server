@@ -5,11 +5,14 @@ import { UserType } from "../types/user.type";
 export interface IUserRepository {
     createUser(newUser: UserType): Promise<IUser>;
     getUser(uid: string): Promise<IUser | null>;
+    getUserById(id: string): Promise<IUser | null>;
     getUserByEmail(email: string): Promise<IUser | null>;
     getAllUsers(): Promise<Array<IUser>>;
     updateUser(uid: string, updates: Partial<IUser>): Promise<IUser | null>;
+    updateUserById(id: string, updates: Partial<IUser>): Promise<IUser | null>;
     updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null>;
     deleteUser(uid: string): Promise<void>;
+    deleteUserById(id: string): Promise<void>;
 }
 
 
@@ -59,5 +62,31 @@ export class UserRepository implements IUserRepository {
             )
             .exec();
         return doc?.profilePic ? doc.profilePic : null;
+    }
+
+    // ID-based methods for admin operations
+    async getUserById(id: string): Promise<IUser | null> {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        const doc = await UserModel.findById(id).exec();
+        return doc ? doc : null;
+    }
+
+    async updateUserById(id: string, updates: Partial<IUser>): Promise<IUser | null> {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        const doc = await UserModel
+            .findByIdAndUpdate(id, { $set: updates }, { new: true })
+            .exec();
+        return doc ? doc : null;
+    }
+
+    async deleteUserById(id: string): Promise<void> {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return;
+        }
+        await UserModel.findByIdAndDelete(id).exec();
     }
 }

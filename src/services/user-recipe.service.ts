@@ -23,7 +23,7 @@ export class UserRecipeService {
      */
     async savePrivateRecipe(recipeData: IRecipe, userId: string): Promise<IUserRecipe> {
         const userRecipeId = uuidv4();
-        
+
         const userRecipe: Partial<IUserRecipe> = {
             userRecipeId,
             userId,
@@ -134,9 +134,67 @@ export class UserRecipeService {
 
     /**
      * Get all recipes in user's cookbook
+     * This includes:
+     * 1. Recipes from UserRecipe collection (cookbook-added recipes)
+     * 2. Recipes from Recipe collection where generatedBy matches userId (user-generated recipes)
      */
     async getUserCookbook(userId: string): Promise<Array<IUserRecipe>> {
-        return this.userRecipeRepository.getUserCookbook(userId);
+        // Fetch cookbook recipes (UserRecipe collection)
+        const cookbookRecipes = await this.userRecipeRepository.getUserCookbook(userId);
+
+        // Fetch user-generated recipes (Recipe collection)
+        const userGeneratedRecipes = await this.recipeRepository.getCurrentUserRecipe(userId);
+
+        // Transform user-generated recipes to UserRecipe structure
+        const transformedGeneratedRecipes: IUserRecipe[] = userGeneratedRecipes.map((recipe: IRecipe) => {
+            // Create a temporary userRecipeId to identify this as a generated recipe not in cookbook
+            const tempUserRecipeId = `temp-${recipe.recipeId}`;
+
+            return {
+                userRecipeId: tempUserRecipeId,
+                userId: userId,
+                originalRecipeId: recipe.recipeId,
+                originalGeneratedBy: recipe.generatedBy,
+                recipeName: recipe.recipeName,
+                ingredients: recipe.ingredients.map(ing => ({
+                    ingredientId: ing.ingredientId,
+                    name: ing.name,
+                    quantity: ing.quantity,
+                    unit: ing.unit,
+                    imageUrl: ing.imageUrl,
+                    isReady: false,
+                })),
+                steps: recipe.steps.map((step: any) => ({
+                    id: step.id,
+                    instruction: step.instruction || step.step,
+                    isDone: false,
+                })),
+                initialPreparation: recipe.initialPreparation.map((prep: any) => ({
+                    id: prep.id,
+                    instruction: prep.instruction || prep.step,
+                    isDone: false,
+                })),
+                kitchenTools: recipe.kitchenTools.map(tool => ({
+                    toolId: tool.toolId,
+                    toolName: tool.toolName,
+                    imageUrl: tool.imageUrl,
+                    isReady: false,
+                })),
+                experienceLevel: recipe.experienceLevel,
+                estCookingTime: recipe.estCookingTime,
+                description: recipe.description,
+                mealType: recipe.mealType,
+                cuisine: recipe.cuisine,
+                calorie: recipe.calorie,
+                images: recipe.images,
+                nutrition: recipe.nutrition,
+                servings: recipe.servings,
+                addedAt: recipe.createdAt, // Use recipe creation date as addedAt
+            } as IUserRecipe;
+        });
+
+        // Combine both lists, with cookbook recipes first
+        return [...cookbookRecipes, ...transformedGeneratedRecipes];
     }
 
     /**

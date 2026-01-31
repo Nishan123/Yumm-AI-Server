@@ -7,6 +7,7 @@ import userRoutes from "./routes/user.route";
 import authRoutes from "./routes/auth.route";
 import recipeRoutes from "./routes/recipe.route";
 import userRecipeRoutes from "./routes/user-recipe.route";
+import adminUserRoutes from "./routes/admin-user.route";
 
 dotenv.config();
 
@@ -42,6 +43,8 @@ app.use("/api", userRoutes);
 app.use("/api", authRoutes);
 app.use("/api", recipeRoutes);
 app.use("/api", userRecipeRoutes);
+app.use("/api", adminUserRoutes);
+
 
 connectToDb().then(() => {
   app.listen(PORT, () => {

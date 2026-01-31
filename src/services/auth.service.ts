@@ -126,6 +126,7 @@ export class AuthService {
             id: user.uid,
             email: user.email,
             fullName: user.fullName,
+            role: user.role,
         };
         return jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });
     }
@@ -138,4 +139,20 @@ export class AuthService {
         const { password, _id, __v, ...safeUser } = userObj;
         return safeUser;
     }
+
+    // Update user profile (for authenticated users)
+    async updateUserProfile(uid: string, updates: any): Promise<SafeUser | null> {
+        const existing = await this.userRepository.getUser(uid);
+        if (!existing) {
+            return null;
+        }
+
+        const updatedUser = await this.userRepository.updateUser(uid, updates);
+        if (!updatedUser) {
+            return null;
+        }
+
+        return this.sanitizeUser(updatedUser);
+    }
 }
+
