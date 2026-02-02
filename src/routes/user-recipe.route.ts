@@ -25,6 +25,9 @@ router.get("/cookbook/:userId/check/:originalRecipeId", userRecipeController.isR
 // Update user's recipe progress
 router.put("/cookbook/recipe/:userRecipeId", userRecipeController.updateUserRecipe);
 
+// Full update user's recipe content
+router.put("/cookbook/recipe/:userRecipeId/full", userRecipeController.fullUpdateUserRecipe);
+
 // Remove recipe from cookbook
 router.delete("/cookbook/recipe/:userRecipeId", userRecipeController.removeFromCookbook);
 

@@ -233,4 +233,31 @@ export class UserRecipeController {
             sendError(res, (error as Error).message, 500);
         }
     };
+
+    /**
+     * Full update of a user's recipe content (not just progress)
+     * PUT /api/cookbook/recipe/:userRecipeId/full
+     * Body: Full recipe data
+     */
+    fullUpdateUserRecipe = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { userRecipeId } = req.params;
+            const updates: Partial<IUserRecipe> = req.body;
+
+            if (!userRecipeId) {
+                sendError(res, "userRecipeId is required", 400);
+                return;
+            }
+
+            const updated = await this.userRecipeService.fullUpdateUserRecipe(userRecipeId, updates);
+            if (!updated) {
+                sendError(res, "User recipe not found", 404);
+                return;
+            }
+
+            sendSuccess(res, updated, 200, "Recipe updated successfully");
+        } catch (error) {
+            sendError(res, (error as Error).message, 500);
+        }
+    };
 }

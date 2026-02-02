@@ -286,4 +286,31 @@ export class UserRecipeService {
 
         return this.userRecipeRepository.updateUserRecipe(updates as IUserRecipe & { userRecipeId: string });
     }
+
+    /**
+     * Delete all user recipe copies that reference a specific original recipe
+     * This is called when the owner deletes the original recipe
+     */
+    async deleteAllCopiesByOriginalRecipeId(originalRecipeId: string): Promise<number> {
+        return this.userRecipeRepository.deleteByOriginalRecipeId(originalRecipeId);
+    }
+
+    /**
+     * Full update of a user recipe (not just progress, but content as well)
+     * Used when a user edits their cookbook recipe
+     */
+    async fullUpdateUserRecipe(userRecipeId: string, updates: Partial<IUserRecipe>): Promise<IUserRecipe | null> {
+        const existing = await this.userRecipeRepository.getUserRecipe(userRecipeId);
+        if (!existing) {
+            return null;
+        }
+
+        // Allow updating all fields for full recipe edit
+        const fullUpdates: Partial<IUserRecipe> = {
+            userRecipeId,
+            ...updates,
+        };
+
+        return this.userRecipeRepository.updateUserRecipe(fullUpdates as IUserRecipe & { userRecipeId: string });
+    }
 }

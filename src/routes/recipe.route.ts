@@ -12,6 +12,7 @@ router.get("/allRecipes", recipeController.getAllRecipes);
 router.get("/publicRecipes", recipeController.getPublicRecipes);
 router.put("/recipe/:recipeId", recipeController.updateRecipe);
 router.delete("/recipe/:recipeId", recipeController.deleteRecipe);
+router.delete("/recipe/:recipeId/cascade", recipeController.deleteRecipeWithCascade);
 router.post(
     "/recipe/:recipeId/images",
     uploadRecipeImagesMiddleware.array("images", 2),

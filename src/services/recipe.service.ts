@@ -1,12 +1,18 @@
 import { IRecipe } from "../model/recipe.model";
 import { IRecipeReposiory, RecipeRepository } from "../respositories/recipe.repository";
+import { IUserRecipeRepository, UserRecipeRepository } from "../respositories/user-recipe.repository";
 import { RecipeType } from "../types/recipe.type";
 
 export class RecipeService {
     private recipeRepository: IRecipeReposiory;
+    private userRecipeRepository: IUserRecipeRepository;
 
-    constructor(recipeRepository: IRecipeReposiory = new RecipeRepository()) {
+    constructor(
+        recipeRepository: IRecipeReposiory = new RecipeRepository(),
+        userRecipeRepository: IUserRecipeRepository = new UserRecipeRepository()
+    ) {
         this.recipeRepository = recipeRepository;
+        this.userRecipeRepository = userRecipeRepository;
     }
 
     async saveRecipe(newRecipe: IRecipe): Promise<IRecipe> {
@@ -44,5 +50,24 @@ export class RecipeService {
         }
         await this.recipeRepository.deleteRecipe(recipeId);
         return true;
+    }
+
+    /**
+     * Delete a recipe and all its copies in user cookbooks
+     * Used when the owner deletes their recipe
+     */
+    async deleteRecipeWithCascade(recipeId: string): Promise<{ deleted: boolean; copiesDeleted: number }> {
+        const existing = await this.recipeRepository.getRecipe(recipeId);
+        if (!existing) {
+            return { deleted: false, copiesDeleted: 0 };
+        }
+        
+        // Delete all user recipe copies first
+        const copiesDeleted = await this.userRecipeRepository.deleteByOriginalRecipeId(recipeId);
+        
+        // Delete the original recipe
+        await this.recipeRepository.deleteRecipe(recipeId);
+        
+        return { deleted: true, copiesDeleted };
     }
 }

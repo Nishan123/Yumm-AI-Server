@@ -149,6 +149,24 @@ export class RecipeController {
         }
     };
 
+    /**
+     * Delete a recipe with cascade - deletes all user cookbook copies as well
+     * DELETE /api/recipe/:recipeId/cascade
+     */
+    deleteRecipeWithCascade = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { recipeId } = req.params;
+            const result = await this.recipeService.deleteRecipeWithCascade(recipeId);
+            if (!result.deleted) {
+                sendError(res, "Recipe not found", 404);
+                return;
+            }
+            sendSuccess(res, { copiesDeleted: result.copiesDeleted }, 200, "Recipe and all copies deleted successfully");
+        } catch (error) {
+            sendError(res, (error as Error).message, 500);
+        }
+    };
+
     uploadRecipeImages = async (req: Request, res: Response): Promise<void> => {
         try {
             const files = req.files as Express.Multer.File[];

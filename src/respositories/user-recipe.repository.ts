@@ -9,6 +9,7 @@ export interface IUserRecipeRepository {
     updateUserRecipe(userRecipe: Partial<IUserRecipe> & { userRecipeId: string }): Promise<IUserRecipe | null>;
     removeFromCookbook(userRecipeId: string): Promise<boolean>;
     isRecipeInCookbook(userId: string, originalRecipeId: string): Promise<boolean>;
+    deleteByOriginalRecipeId(originalRecipeId: string): Promise<number>;
 }
 
 export class UserRecipeRepository implements IUserRecipeRepository {
@@ -55,5 +56,10 @@ export class UserRecipeRepository implements IUserRecipeRepository {
     async isRecipeInCookbook(userId: string, originalRecipeId: string): Promise<boolean> {
         const recipe = await UserRecipeModel.findOne({ userId, originalRecipeId });
         return recipe !== null;
+    }
+
+    async deleteByOriginalRecipeId(originalRecipeId: string): Promise<number> {
+        const result = await UserRecipeModel.deleteMany({ originalRecipeId });
+        return result.deletedCount;
     }
 }
