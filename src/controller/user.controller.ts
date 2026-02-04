@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import fs from "fs";
+import path from "path";
 import { UpdateUserDto } from "../dtos/user.dto";
 import { UserService } from "../services/user.service";
 import { sendSuccess, sendError } from "../utils/response.util";
@@ -69,6 +71,23 @@ export class UserController {
 			if (!req.file) {
 				sendError(res, "No file uploaded", 400);
 				return;
+			}
+
+			// Clean up old profile pictures with different extensions
+			const uploadDir = path.join(process.cwd(), "public", "profilePic");
+			if (fs.existsSync(uploadDir)) {
+				const files = fs.readdirSync(uploadDir);
+				files.forEach((file) => {
+					// Check if file starts with pp-uid. and is NOT the current new file
+					if (file.startsWith(`pp-${uid}.`) && file !== req.file?.filename) {
+						try {
+							fs.unlinkSync(path.join(uploadDir, file));
+							console.log(`Deleted get old profile pic: ${file}`);
+						} catch (err) {
+							console.error(`Failed to delete old profile pic: ${file}`, err);
+						}
+					}
+				});
 			}
 
 			// Construct the profile picture URL
