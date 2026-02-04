@@ -1,4 +1,4 @@
-import { UserRecipeModel, IUserRecipe } from "../model/user-recipe.model";
+import { UserRecipeModel, IUserRecipe } from "../models/user-recipe.model";
 
 export interface IUserRecipeRepository {
     addToCookbook(userRecipe: IUserRecipe): Promise<IUserRecipe>;
@@ -13,7 +13,7 @@ export interface IUserRecipeRepository {
 }
 
 export class UserRecipeRepository implements IUserRecipeRepository {
-    
+
     async addToCookbook(userRecipe: IUserRecipe): Promise<IUserRecipe> {
         const created = await UserRecipeModel.create(userRecipe);
         return created;

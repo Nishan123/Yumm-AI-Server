@@ -1,4 +1,4 @@
-import { RecipeModel, IRecipe } from "../model/recipe.model";
+import { RecipeModel, IRecipe } from "../models/recipe.model";
 
 export interface IRecipeReposiory {
     saveRecipe(newRecipe: IRecipe): Promise<IRecipe>;

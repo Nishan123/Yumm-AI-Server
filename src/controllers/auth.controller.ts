@@ -4,8 +4,8 @@ import { LoginDto, RegisterDto, GoogleAuthDto } from "../dtos/auth.dto";
 import { HttpError } from "../errors/http-error";
 import { AuthService } from "../services/auth.service";
 import { sendSuccess, sendError } from "../utils/response.util";
-import fs from "fs";
-import path from "path";
+import { auth } from "google-auth-library";
+
 
 export class AuthController {
     private authService: AuthService;
@@ -76,30 +76,12 @@ export class AuthController {
     updateAuthUser = async (req: Request, res: Response): Promise<void> => {
         try {
             const { id } = req.params; // This is the user's UID
-
-            // Handle profile picture if uploaded
-            let profilePicUrl = req.body.profilePic;
-            if (req.file) {
-                const port = process.env.PORT || 5000;
-                const ext = req.file.filename.split('.').pop();
-
-                // Rename the file from pp-undefined.ext to pp-{uid}.ext
-                const oldPath = req.file.path;
-                const newFilename = `pp-${id}.${ext}`;
-                const newPath = path.join(path.dirname(oldPath), newFilename);
-
-                // Rename the file
-                fs.renameSync(oldPath, newPath);
-
-                profilePicUrl = `http://localhost:${port}/public/profilePic/${newFilename}`;
-            }
-
             const updates: any = { ...req.body };
-            if (profilePicUrl) {
-                updates.profilePic = profilePicUrl;
-            }
 
-            const updated = await this.authService.updateUserProfile(id, updates);
+            // Pass file to service if exists
+            const file = req.file;
+
+            const updated = await this.authService.updateUserProfile(id, updates, file);
             if (!updated) {
                 sendError(res, "User not found", 404);
                 return;
@@ -109,5 +91,39 @@ export class AuthController {
             sendError(res, (error as Error).message, 400);
         }
     };
+
+    sendResetPasswordEmail = async (req: Request, res: Response) => {
+        try {
+            const email = req.body.email;
+            const user = await this.authService.sendResetPasswordEmail(email);
+            return res.status(200).json(
+                {
+                    success: true,
+                    data: user,
+                    message: "If the email is registered, a reset link has been sent."
+                }
+            );
+        } catch (error: Error | any) {
+            return res.status(error.statusCode ?? 500).json(
+                { ksuccess: false, message: error.message || "Internal Server Error" }
+            );
+        }
+    }
+
+    resetPassword = async (req: Request, res: Response) => {
+        try {
+            const token = req.params.token;
+            const { newPassword } = req.body;
+            await this.authService.resetPassword(token, newPassword);
+            return res.status(200).json(
+                { success: true, message: "Password has been reset successfully." }
+            );
+            
+        } catch (error: Error | any) {
+            return res.status(error.statusCode ?? 500).json(
+                { success: false, message: error.message || "Internal Server Error" }
+            );
+        }
+    }
 }
 

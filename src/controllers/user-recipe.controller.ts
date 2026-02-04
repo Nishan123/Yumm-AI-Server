@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { UserRecipeService } from "../services/user-recipe.service";
 import { sendSuccess, sendError } from "../utils/response.util";
-import { IUserRecipe } from "../model/user-recipe.model";
-import { IRecipe } from "../model/recipe.model";
+import { IUserRecipe } from "../models/user-recipe.model";
+import { IRecipe } from "../models/recipe.model";
 
 export class UserRecipeController {
     private userRecipeService: UserRecipeService;

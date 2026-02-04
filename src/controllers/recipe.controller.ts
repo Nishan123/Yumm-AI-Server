@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { RecipeService } from "../services/recipe.service";
 import { sendSuccess, sendError } from "../utils/response.util";
-import { IRecipe } from "../model/recipe.model";
+import { IRecipe } from "../models/recipe.model";
 
 export class RecipeController {
     private recipeService: RecipeService;

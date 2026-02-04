@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import fs from "fs";
-import path from "path";
+
 import { UpdateUserDto } from "../dtos/user.dto";
 import { UserService } from "../services/user.service";
 import { sendSuccess, sendError } from "../utils/response.util";
@@ -73,30 +72,9 @@ export class UserController {
 				return;
 			}
 
-			// Clean up old profile pictures with different extensions
-			const uploadDir = path.join(process.cwd(), "public", "profilePic");
-			if (fs.existsSync(uploadDir)) {
-				const files = fs.readdirSync(uploadDir);
-				files.forEach((file) => {
-					// Check if file starts with pp-uid. and is NOT the current new file
-					if (file.startsWith(`pp-${uid}.`) && file !== req.file?.filename) {
-						try {
-							fs.unlinkSync(path.join(uploadDir, file));
-							console.log(`Deleted get old profile pic: ${file}`);
-						} catch (err) {
-							console.error(`Failed to delete old profile pic: ${file}`, err);
-						}
-					}
-				});
-			}
+			// Update user's profilePic using service
+			const updatedUser = await this.userService.updateProfilePic(uid, req.file);
 
-			// Construct the profile picture URL
-			const port = process.env.PORT || 5000;
-			const ext = req.file.filename.split('.').pop();
-			const profilePicUrl = `http://localhost:${port}/public/profilePic/pp-${uid}.${ext}`;
-
-			// Update user's profilePic in database
-			const updatedUser = await this.userService.updateProfilePic(uid, profilePicUrl);
 			if (!updatedUser) {
 				sendError(res, "User not found", 404);
 				return;

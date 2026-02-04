@@ -28,3 +28,4 @@ if (!process.env.CLIENT_SECRET) {
 export const GOOGLE_CLIENT_SECRET: string = process.env.CLIENT_SECRET;
 
 export const GOOGLE_CALLBACK_URL: string = process.env.CALLBACK_URL || "http://localhost:3000/auth/google/callback";
+export const CLIENT_URL: string = process.env.CLIENT_URL || "http://localhost:3000";

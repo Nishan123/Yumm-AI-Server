@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { RecipeController } from "../controller/recipe.controller";
-import { uploadRecipeImagesMiddleware } from "../middlewears/recipeImage.middleware";
+import { RecipeController } from "../controllers/recipe.controller";
+import { uploadRecipeImagesMiddleware } from "../middlewares/recipeImage.middleware";
 
 const router = Router();
 const recipeController = new RecipeController();

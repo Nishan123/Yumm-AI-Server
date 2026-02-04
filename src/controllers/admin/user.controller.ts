@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
-import { CreateUserDto } from "../dtos/auth.dto";
-import { AdminUserService } from "../services/admin/admin-user.service";
-import { sendSuccess, sendError } from "../utils/response.util";
+import { CreateUserDto } from "../../dtos/auth.dto";
+import { AdminUserService } from "../../services/admin/admin-user.service";
+import { sendSuccess, sendError } from "../../utils/response.util";
 import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
-import path from "path";
+
 import { ZodError } from "zod";
-import { HttpError } from "../errors/http-error";
+import { HttpError } from "../../errors/http-error";
 
 export class AdminUserController {
     private adminUserService: AdminUserService;
@@ -20,30 +19,9 @@ export class AdminUserController {
         try {
             const payload: CreateUserDto = req.body;
 
-            // Generate UID first (needed for profile picture naming)
-            const uid = uuidv4();
-
             // Handle profile picture if uploaded
-            let profilePicUrl = payload.profilePic;
-            if (req.file) {
-                const port = process.env.PORT || 5000;
-                const ext = req.file.filename.split('.').pop();
-
-                // Rename the file from pp-undefined.ext to pp-{uid}.ext
-                const oldPath = req.file.path;
-                const newFilename = `pp-${uid}.${ext}`;
-                const newPath = path.join(path.dirname(oldPath), newFilename);
-
-                // Rename the file
-                fs.renameSync(oldPath, newPath);
-
-                profilePicUrl = `http://localhost:${port}/public/profilePic/${newFilename}`;
-            }
-
-            // Apply default profile pic if none provided
-            const finalProfilePicUrl = profilePicUrl || "https://i.pinimg.com/1200x/f5/47/d8/f547d800625af9056d62efe8969aeea0.jpg";
-
-            const created = await this.adminUserService.createUser(payload, finalProfilePicUrl, uid);
+            const file = req.file;
+            const created = await this.adminUserService.createUser(payload, file);
             sendSuccess(res, created, 201, "User created successfully");
         } catch (error) {
             if (error instanceof ZodError) {
@@ -89,22 +67,8 @@ export class AdminUserController {
             const { id } = req.params;
 
             // Handle profile picture if uploaded
-            let profilePicUrl = req.body.profilePic;
-            if (req.file) {
-                const port = process.env.PORT || 5000;
-                const ext = req.file.filename.split('.').pop();
-                const user = await this.adminUserService.getUserById(id);
-                if (user) {
-                    const oldPath = req.file.path;
-                    const newFilename = `pp-${user.uid}.${ext}`;
-                    const newPath = path.join(path.dirname(oldPath), newFilename);
-                    fs.renameSync(oldPath, newPath);
-
-                    profilePicUrl = `http://localhost:${port}/public/profilePic/${newFilename}`;
-                }
-            }
-
-            const updated = await this.adminUserService.updateUserById(id, req.body, profilePicUrl);
+            const file = req.file;
+            const updated = await this.adminUserService.updateUserById(id, req.body, file);
             if (!updated) {
                 sendError(res, "User not found", 404);
                 return;

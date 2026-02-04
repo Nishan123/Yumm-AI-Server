@@ -1,6 +1,8 @@
 import { UpdateUserDto } from "../dtos/user.dto";
-import { IUserRepository, UserRepository } from "../respositories/user.repository";
+import { IUserRepository, UserRepository } from "../repositories/user.repository";
 import { UserType } from "../types/user.type";
+import fs from "fs";
+import path from "path";
 
 export class UserService {
     private userRepository: IUserRepository;
@@ -46,11 +48,42 @@ export class UserService {
         return true;
     }
 
-    async updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null> {
+    async updateProfilePic(uid: string, file?: Express.Multer.File): Promise<String | null> {
         const existing = await this.userRepository.getUser(uid);
         if (!existing) {
             return null;
         }
+
+        if (!file) {
+            return existing.profilePic || null;
+        }
+
+        const port = process.env.PORT || 5000;
+        const uploadDir = path.dirname(file.path);
+        const ext = file.filename.split('.').pop();
+        const newFilename = `pp-${uid}.${ext}`;
+        const newPath = path.join(uploadDir, newFilename);
+
+        // Delete old profile pics for this user (any extension)
+        try {
+            const files = fs.readdirSync(uploadDir);
+            files.forEach((f) => {
+                if (f.startsWith(`pp-${uid}.`) && f !== file.filename) {
+                    try {
+                        fs.unlinkSync(path.join(uploadDir, f));
+                    } catch (err) {
+                        console.error(`Failed to delete old profile pic: ${f}`, err);
+                    }
+                }
+            });
+            // Rename the new file
+            fs.renameSync(file.path, newPath);
+        } catch (error) {
+            console.error("Error handling profile pic file:", error);
+            throw new Error("Failed to process profile picture");
+        }
+
+        const profilePicUrl = `http://localhost:${port}/public/profilePic/${newFilename}`;
         return this.userRepository.updateProfilePic(uid, profilePicUrl);
     }
 

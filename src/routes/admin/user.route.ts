@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { AdminUserController } from "../controller/admin-user.controller";
-import { authorizedMiddleWare } from "../middlewears/authorized.middleware";
-import { isAdminMiddleware } from "../middlewears/isAdmin.middleware";
-import { uploadProfilePic } from "../middlewears/profilePic.middleware";
+import { AdminUserController } from "../../controllers/admin/user.controller";
+import { authorizedMiddleWare } from "../../middlewares/authorized.middleware";
+import { isAdminMiddleware } from "../../middlewares/isAdmin.middleware";
+import { uploadProfilePic } from "../../middlewares/profilePic.middleware";
 
 const router = Router();
 const adminUserController = new AdminUserController();

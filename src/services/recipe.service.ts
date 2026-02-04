@@ -1,6 +1,6 @@
-import { IRecipe } from "../model/recipe.model";
-import { IRecipeReposiory, RecipeRepository } from "../respositories/recipe.repository";
-import { IUserRecipeRepository, UserRecipeRepository } from "../respositories/user-recipe.repository";
+import { IRecipe } from "../models/recipe.model";
+import { IRecipeReposiory, RecipeRepository } from "../repositories/recipe.repository";
+import { IUserRecipeRepository, UserRecipeRepository } from "../repositories/user-recipe.repository";
 import { RecipeType } from "../types/recipe.type";
 
 export class RecipeService {
@@ -61,13 +61,13 @@ export class RecipeService {
         if (!existing) {
             return { deleted: false, copiesDeleted: 0 };
         }
-        
+
         // Delete all user recipe copies first
         const copiesDeleted = await this.userRecipeRepository.deleteByOriginalRecipeId(recipeId);
-        
+
         // Delete the original recipe
         await this.recipeRepository.deleteRecipe(recipeId);
-        
+
         return { deleted: true, copiesDeleted };
     }
 }

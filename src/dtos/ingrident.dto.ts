@@ -1,19 +1,19 @@
 import { z } from "zod";
-import { IngridentScheme } from "../types/ingrident.type";
+import { IngredientScheme } from "../types/ingredient.type";
 
 // Create Ingredient DTO
-export const CreateIngridentDto = IngridentScheme.omit({
-    ingridentId: true,
+export const CreateIngredientDto = IngredientScheme.omit({
+    ingredientId: true,
 });
-export type CreateIngridentDto = z.infer<typeof CreateIngridentDto>;
+export type CreateIngredientDto = z.infer<typeof CreateIngredientDto>;
 
 // Update Ingredient DTO
-export const UpdateIngridentDto = IngridentScheme.pick({
-    ingridentId: true,
+export const UpdateIngredientDto = IngredientScheme.pick({
+    ingredientId: true,
 }).extend({
-    name: IngridentScheme.shape.name.optional(),
-    imageUrl: IngridentScheme.shape.imageUrl.optional(),
-    quantity: IngridentScheme.shape.quantity.optional(),
-    unit: IngridentScheme.shape.unit.optional(),
+    name: IngredientScheme.shape.name.optional(),
+    imageUrl: IngredientScheme.shape.imageUrl.optional(),
+    quantity: IngredientScheme.shape.quantity.optional(),
+    unit: IngredientScheme.shape.unit.optional(),
 });
-export type UpdateIngridentDto = z.infer<typeof UpdateIngridentDto>;
+export type UpdateIngredientDto = z.infer<typeof UpdateIngredientDto>;

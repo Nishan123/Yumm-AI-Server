@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { IUserRecipe } from "../model/user-recipe.model";
-import { IRecipe } from "../model/recipe.model";
-import { IRecipeReposiory, RecipeRepository } from "../respositories/recipe.repository";
-import { IUserRecipeRepository, UserRecipeRepository } from "../respositories/user-recipe.repository";
+import { IUserRecipe } from "../models/user-recipe.model";
+import { IRecipe } from "../models/recipe.model";
+import { IRecipeReposiory, RecipeRepository } from "../repositories/recipe.repository";
+import { IUserRecipeRepository, UserRecipeRepository } from "../repositories/user-recipe.repository";
 
 export class UserRecipeService {
     private userRecipeRepository: IUserRecipeRepository;
