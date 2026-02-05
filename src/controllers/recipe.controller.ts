@@ -185,4 +185,26 @@ export class RecipeController {
             sendError(res, (error as Error).message, 500);
         }
     };
+
+    toggleSaveRecipe = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { recipeId } = req.params;
+            const userId = req.user?.id; // Assumes authorized middleware adds user to req
+
+            if (!userId) {
+                sendError(res, "User not authenticated", 401);
+                return;
+            }
+
+            const updatedRecipe = await this.recipeService.toggleSaveRecipe(recipeId, userId);
+            if (!updatedRecipe) {
+                sendError(res, "Recipe not found", 404);
+                return;
+            }
+
+            sendSuccess(res, updatedRecipe, 200, "Recipe like status updated");
+        } catch (error) {
+            sendError(res, (error as Error).message, 500);
+        }
+    };
 }

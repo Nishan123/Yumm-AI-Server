@@ -8,6 +8,7 @@ export interface IRecipeReposiory {
     getCurrentUserRecipe(userId: string): Promise<Array<IRecipe>>;
     updateRecipe(recipe: IRecipe): Promise<IRecipe>;
     deleteRecipe(recipeId: string): Promise<void>;
+    toggleLike(recipeId: string, userId: string): Promise<IRecipe | null>;
 }
 
 export class RecipeRepository implements IRecipeReposiory {
@@ -45,6 +46,21 @@ export class RecipeRepository implements IRecipeReposiory {
     }
     async deleteRecipe(recipeId: string): Promise<void> {
         await RecipeModel.deleteOne({ recipeId: recipeId });
+    }
+
+    async toggleLike(recipeId: string, userId: string): Promise<IRecipe | null> {
+        const recipe = await RecipeModel.findOne({ recipeId });
+        if (!recipe) return null;
+
+        const index = recipe.likes.indexOf(userId);
+        if (index === -1) {
+            recipe.likes.push(userId);
+        } else {
+            recipe.likes.splice(index, 1);
+        }
+
+        await recipe.save();
+        return recipe;
     }
 
 }

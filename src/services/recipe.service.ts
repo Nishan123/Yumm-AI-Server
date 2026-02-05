@@ -70,4 +70,8 @@ export class RecipeService {
 
         return { deleted: true, copiesDeleted };
     }
+
+    async toggleSaveRecipe(recipeId: string, userId: string): Promise<IRecipe | null> {
+        return this.recipeRepository.toggleLike(recipeId, userId);
+    }
 }

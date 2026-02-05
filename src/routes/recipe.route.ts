@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { RecipeController } from "../controllers/recipe.controller";
 import { uploadRecipeImagesMiddleware } from "../middlewares/recipeImage.middleware";
+import { authorizedMiddleWare } from "../middlewares/authorized.middleware";
 
 const router = Router();
 const recipeController = new RecipeController();
 
 router.post("/saveRecipe", recipeController.saveRecipe);
+router.post("/recipe/:recipeId/save", authorizedMiddleWare, recipeController.toggleSaveRecipe);
 router.get("/recipe/:recipeId", recipeController.getRecipe);
 router.get("/userRecipe/:userId", recipeController.getCurrentUserRecipes);
 router.get("/allRecipes", recipeController.getAllRecipes);

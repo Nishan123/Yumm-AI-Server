@@ -72,19 +72,18 @@ export class UserService {
                     try {
                         fs.unlinkSync(path.join(uploadDir, f));
                     } catch (err) {
-                        console.error(`Failed to delete old profile pic: ${f}`, err);
+                        throw new Error("Failed to delete old profile pic");
                     }
                 }
             });
-            // Rename the new file
-            fs.renameSync(file.path, newPath);
         } catch (error) {
-            console.error("Error handling profile pic file:", error);
             throw new Error("Failed to process profile picture");
         }
 
-        const profilePicUrl = `http://localhost:${port}/public/profilePic/${newFilename}`;
-        return this.userRepository.updateProfilePic(uid, profilePicUrl);
+        // Use the actual filename from Multer
+        const profilePicUrl = `http://localhost:${port}/public/profilePic/${file.filename}`;
+        const result = await this.userRepository.updateProfilePic(uid, profilePicUrl);
+        return result;
     }
 
     // Admin operations
