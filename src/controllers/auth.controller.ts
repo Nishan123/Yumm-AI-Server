@@ -96,17 +96,15 @@ export class AuthController {
         try {
             const email = req.body.email;
             const user = await this.authService.sendResetPasswordEmail(email);
-            return res.status(200).json(
-                {
-                    success: true,
-                    data: user,
-                    message: "If the email is registered, a reset link has been sent."
-                }
-            );
-        } catch (error: Error | any) {
-            return res.status(error.statusCode ?? 500).json(
-                { ksuccess: false, message: error.message || "Internal Server Error" }
-            );
+
+            // Don't send back the user object for security privacy, just a success message
+            sendSuccess(res, null, 200, "If the email is registered, a reset link has been sent.");
+        } catch (error: any) {
+            if (error instanceof HttpError) {
+                sendError(res, error.message, error.statusCode);
+                return;
+            }
+            sendError(res, error.message || "Internal Server Error", 500);
         }
     }
 
@@ -115,14 +113,15 @@ export class AuthController {
             const token = req.params.token;
             const { newPassword } = req.body;
             await this.authService.resetPassword(token, newPassword);
-            return res.status(200).json(
-                { success: true, message: "Password has been reset successfully." }
-            );
-            
-        } catch (error: Error | any) {
-            return res.status(error.statusCode ?? 500).json(
-                { success: false, message: error.message || "Internal Server Error" }
-            );
+
+            sendSuccess(res, null, 200, "Password has been reset successfully.");
+
+        } catch (error: any) {
+            if (error instanceof HttpError) {
+                sendError(res, error.message, error.statusCode);
+                return;
+            }
+            sendError(res, error.message || "Internal Server Error", 500);
         }
     }
 }

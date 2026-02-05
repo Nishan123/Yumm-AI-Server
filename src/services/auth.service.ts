@@ -2,7 +2,7 @@ import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import { JWT_SECRET, GOOGLE_CLIENT_ID, CLIENT_URL } from "../config";
-import { RegisterDto, LoginDto, GoogleAuthDto } from "../dtos/auth.dto";
+import { RegisterDto, LoginDto, GoogleAuthDto, ResetPasswordDto } from "../dtos/auth.dto";
 import { HttpError } from "../errors/http-error";
 import { IUserRepository, UserRepository } from "../repositories/user.repository";
 import { UserType } from "../types/user.type";
@@ -194,10 +194,17 @@ export class AuthService {
     }
 
     async resetPassword(token?: string, newPassword?: string) {
+        if (!token || !newPassword) {
+            throw new HttpError(400, "Token and new password are required");
+        }
+
+        // Validate password strength
+        const validation = ResetPasswordDto.safeParse({ newPassword });
+        if (!validation.success) {
+            throw new HttpError(422, validation.error.issues[0].message);
+        }
+
         try {
-            if (!token || !newPassword) {
-                throw new HttpError(400, "Token and new password are required");
-            }
             const decoded: any = jwt.verify(token, JWT_SECRET);
             const userId = decoded.id;
             const user = await this.userRepository.getUserById(userId);
@@ -208,6 +215,7 @@ export class AuthService {
             await this.userRepository.updateUserById(userId, { password: hashedPassword });
             return user;
         } catch (error) {
+            if (error instanceof HttpError) throw error;
             throw new HttpError(400, "Invalid or expired token");
         }
     }
