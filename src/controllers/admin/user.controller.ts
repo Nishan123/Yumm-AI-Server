@@ -7,6 +7,12 @@ import { v4 as uuidv4 } from "uuid";
 import { ZodError } from "zod";
 import { HttpError } from "../../errors/http-error";
 
+interface QueryParams {
+    page?: string;
+    size?: string;
+    searchTerm?: string;
+}
+
 export class AdminUserController {
     private adminUserService: AdminUserService;
 
@@ -37,10 +43,13 @@ export class AdminUserController {
     };
 
     // Get all users (admin only)
-    getAllUsers = async (_req: Request, res: Response): Promise<void> => {
+    getAllUsers = async (req: Request, res: Response): Promise<void> => {
         try {
-            const users = await this.adminUserService.getAllUsers();
-            sendSuccess(res, users);
+            const { page, size, searchTerm }: QueryParams = req.query;
+            const { users, pagination } = await this.adminUserService.getAllUsersPaginated(
+                page, size, searchTerm
+            );
+            sendSuccess(res, { users, pagination }, 200, "Users fetched successfully");
         } catch (error) {
             sendError(res, (error as Error).message, 500);
         }

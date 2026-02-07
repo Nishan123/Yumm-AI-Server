@@ -85,4 +85,54 @@ export class UserController {
 			sendError(res, (error as Error).message, 500);
 		}
 	};
+
+	/**
+	 * Delete user with password verification (for emailPassword auth users)
+	 */
+	deleteUserWithPassword = async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { uid } = req.params;
+			const { password } = req.body;
+
+			if (!password) {
+				sendError(res, "Password is required", 400);
+				return;
+			}
+
+			const deleted = await this.userService.deleteUserWithPassword(uid, password);
+			if (deleted) {
+				sendSuccess(res, null, 200, "User deleted successfully");
+			} else {
+				sendError(res, "Failed to delete user", 500);
+			}
+		} catch (error: any) {
+			const statusCode = error.statusCode || 500;
+			sendError(res, error.message || "Internal server error", statusCode);
+		}
+	};
+
+	/**
+	 * Delete user with Google token verification (for Google auth users)
+	 */
+	deleteUserWithGoogle = async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { uid } = req.params;
+			const { idToken } = req.body;
+
+			if (!idToken) {
+				sendError(res, "Google ID token is required", 400);
+				return;
+			}
+
+			const deleted = await this.userService.deleteUserWithGoogle(uid, idToken);
+			if (deleted) {
+				sendSuccess(res, null, 200, "User deleted successfully");
+			} else {
+				sendError(res, "Failed to delete user", 500);
+			}
+		} catch (error: any) {
+			const statusCode = error.statusCode || 500;
+			sendError(res, error.message || "Internal server error", statusCode);
+		}
+	};
 }

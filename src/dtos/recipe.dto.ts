@@ -28,6 +28,7 @@ export const UpdateRecipeDto = RecipeScheme.pick({
     images: RecipeScheme.shape.images.optional(),
     nutrition: RecipeScheme.shape.nutrition.optional(),
     servings: RecipeScheme.shape.servings.optional(),
+    dietaryRestrictions: RecipeScheme.shape.dietaryRestrictions.optional(),
 });
 export type UpdateRecipeDto = z.infer<typeof UpdateRecipeDto>;
 

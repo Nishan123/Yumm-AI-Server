@@ -1,6 +1,7 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { UserModel, IUser } from "../models/user.model";
 import { UserType } from "../types/user.type";
+import { QueryFilter } from "mongoose";
 
 export interface IUserRepository {
     createUser(newUser: UserType): Promise<IUser>;
@@ -8,6 +9,7 @@ export interface IUserRepository {
     getUserById(id: string): Promise<IUser | null>;
     getUserByEmail(email: string): Promise<IUser | null>;
     getAllUsers(): Promise<Array<IUser>>;
+    getAllPaginatedUsers(page: number, size: number, searchTerm?: string): Promise<{ users: IUser[], total: number }>;
     updateUser(uid: string, updates: Partial<IUser>): Promise<IUser | null>;
     updateUserById(id: string, updates: Partial<IUser>): Promise<IUser | null>;
     updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null>;
@@ -17,6 +19,22 @@ export interface IUserRepository {
 
 
 export class UserRepository implements IUserRepository {
+
+    async getAllPaginatedUsers(page: number, size: number, searchTerm?: string)
+        : Promise<{ users: IUser[]; total: number; }> {
+        const filter: QueryFilter<IUser> = {};
+        if (searchTerm) {
+            filter.$or = [
+                { fullName: { $regex: searchTerm, $options: 'i' } },
+                { email: { $regex: searchTerm, $options: 'i' } }
+            ];
+        }
+        const [users, total] = await Promise.all([
+            UserModel.find(filter).skip((page - 1) * size).limit(size),
+            UserModel.countDocuments(filter)
+        ]);
+        return { users, total };
+    }
 
     async getUserByEmail(email: string): Promise<IUser | null> {
         const normalizedEmail = email.toLowerCase();

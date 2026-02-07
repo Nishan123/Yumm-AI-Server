@@ -61,6 +61,7 @@ const RecipeSchema: Schema = new Schema(
         nutrition: { type: NutritionSchema },
         servings: { type: Number, required: true },
         likes: { type: [String], default: [] },
+        dietaryRestrictions: { type: [String], default: [] },
         isPublic: { type: Boolean, default: true, index: true },
     },
     {

@@ -31,6 +31,7 @@ export const RecipeScheme = z.object({
     }).optional(),
     servings: z.number().int().positive(),
     likes: z.array(z.string()).default([]),
+    dietaryRestrictions: z.array(z.string()).default([]),
     isPublic: z.boolean().default(true),
     createdAt: z.coerce.date().default(() => new Date()),
     updatedAt: z.coerce.date().default(() => new Date()),

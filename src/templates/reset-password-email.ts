@@ -34,16 +34,6 @@ export const getResetPasswordEmailTemplate = (resetLink: string): string => {
             color: #ffffff;
             text-align: left;
         }
-        .badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.16);
-            color: #f8fafc;
-            font-size: 12px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
         .hero h1 {
             margin: 14px 0 8px;
             font-size: 28px;
@@ -136,7 +126,6 @@ export const getResetPasswordEmailTemplate = (resetLink: string): string => {
     <div class="wrapper">
         <div class="container">
             <div class="hero">
-                <span class="badge">Security Notice</span>
                 <h1>Reset your password</h1>
                 <p>We received a request to change your Yumm AI password. Use the button below to continue.</p>
             </div>
@@ -160,7 +149,7 @@ export const getResetPasswordEmailTemplate = (resetLink: string): string => {
             </div>
             <div class="footer">
                 Questions? Reply to this email or visit our <a href="https://yumm.ai">Help Center</a>.<br/>
-                &copy; ${new Date().getFullYear()} Yumm AI. Your intelligent culinary companion.
+                &copy; ${new Date().getFullYear()} Yumm AI.
             </div>
         </div>
     </div>

@@ -26,6 +26,6 @@ app.use("/api", userRoutes);
 app.use("/api", authRoutes);
 app.use("/api", recipeRoutes);
 app.use("/api", userRecipeRoutes);
-app.use("/api/admin/users", adminUserRoutes);
+app.use("/api", adminUserRoutes);
 
 export default app;
