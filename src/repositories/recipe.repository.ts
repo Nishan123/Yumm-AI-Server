@@ -1,10 +1,11 @@
+import { QueryFilter } from "mongoose";
 import { RecipeModel, IRecipe } from "../models/recipe.model";
 
 export interface IRecipeReposiory {
     saveRecipe(newRecipe: IRecipe): Promise<IRecipe>;
     getRecipe(recipeId: string): Promise<IRecipe | null>;
-    getAllRecipe(): Promise<Array<IRecipe>>;
-    getPublicRecipes(): Promise<Array<IRecipe>>;
+    getAllRecipe(page: number, size: number, searchTerm?: string): Promise<{ recipe: IRecipe[], total: number }>;
+    getPublicRecipes(page: number, size: number, searchTerm?: string): Promise<{ recipe: IRecipe[], total: number }>;
     getCurrentUserRecipe(userId: string): Promise<Array<IRecipe>>;
     updateRecipe(recipe: IRecipe): Promise<IRecipe>;
     deleteRecipe(recipeId: string): Promise<void>;
@@ -12,6 +13,37 @@ export interface IRecipeReposiory {
 }
 
 export class RecipeRepository implements IRecipeReposiory {
+    async getAllRecipe(page: number, size: number, searchTerm?: string)
+        : Promise<{ recipe: IRecipe[]; total: number; }> {
+        const filter: QueryFilter<IRecipe> = {};
+        if (searchTerm) {
+            filter.$or = [
+                { recipeName: { $regex: searchTerm, $options: 'i' } },
+                { cuisine: { $regex: searchTerm, $options: 'i' } },
+            ];
+        }
+        const [recipe, total] = await Promise.all([
+            RecipeModel.find(filter).skip((page - 1) * size).limit(size),
+            RecipeModel.countDocuments(filter)
+        ]);
+        return { recipe, total };
+    }
+
+    async getPublicRecipes(page: number, size: number, searchTerm?: string)
+        : Promise<{ recipe: IRecipe[]; total: number; }> {
+        const filter: QueryFilter<IRecipe> = { isPublic: true };
+        if (searchTerm) {
+            filter.$or = [
+                { recipeName: { $regex: searchTerm, $options: 'i' } },
+                { cuisine: { $regex: searchTerm, $options: 'i' } }
+            ];
+        }
+        const [recipe, total] = await Promise.all([
+            RecipeModel.find(filter).skip((page - 1) * size).limit(size),
+            RecipeModel.countDocuments(filter)
+        ]);
+        return { recipe, total };
+    }
 
     async getCurrentUserRecipe(userId: string): Promise<Array<IRecipe>> {
         const docs = await RecipeModel.find({ generatedBy: userId }).limit(15);
@@ -25,14 +57,7 @@ export class RecipeRepository implements IRecipeReposiory {
         const recipe = await RecipeModel.findOne({ recipeId: recipeId });
         return recipe;
     }
-    async getAllRecipe(): Promise<Array<IRecipe>> {
-        const recipes = await RecipeModel.find().exec();
-        return recipes.map((recipe) => recipe);
-    }
-    async getPublicRecipes(): Promise<Array<IRecipe>> {
-        const recipes = await RecipeModel.find({ isPublic: true }).sort({ createdAt: -1 }).limit(50).exec();
-        return recipes;
-    }
+
     async updateRecipe(recipe: IRecipe): Promise<IRecipe> {
         const updatedRecipe = await RecipeModel.findOneAndUpdate(
             { recipeId: recipe.recipeId },

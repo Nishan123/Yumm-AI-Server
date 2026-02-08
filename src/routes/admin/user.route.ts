@@ -12,7 +12,7 @@ router.post(
     "/admin/users",
     authorizedMiddleWare,
     isAdminMiddleware,
-    uploadProfilePic.single("profilePic"),
+    uploadProfilePic,
     adminUserController.createUser
 );
 
@@ -34,7 +34,7 @@ router.put(
     "/admin/users/:id",
     authorizedMiddleWare,
     isAdminMiddleware,
-    uploadProfilePic.single("profilePic"),
+    uploadProfilePic,
     adminUserController.updateUser
 );
 

@@ -23,12 +23,30 @@ export class RecipeService {
         return this.recipeRepository.getRecipe(recipeId);
     }
 
-    async getAllRecipes(): Promise<Array<IRecipe>> {
-        return this.recipeRepository.getAllRecipe();
+    async getAllRecipes(page?:string, size?:string, searchTerm?:string){
+        const currentPage = page?parseInt(page,10):1;
+        const pageSize = size? parseInt(size, 10):10;
+        const {recipe, total}=await this.recipeRepository.getAllRecipe(currentPage, pageSize, searchTerm);
+        const pagination ={
+            page:currentPage,
+            size:pageSize,
+            total,
+            totalPages:Math.ceil(total/pageSize)
+        };
+        return {recipe, pagination};
     }
 
-    async getPublicRecipes(): Promise<Array<IRecipe>> {
-        return this.recipeRepository.getPublicRecipes();
+    async getPublicRecipes(page?:string, size?:string, searchTerm?:string){
+        const currentPage = page?parseInt(page,10):1;
+        const pageSize=size? parseInt(size, 10):10;
+        const {recipe, total}=await this.recipeRepository.getPublicRecipes(currentPage, pageSize, searchTerm);
+        const pagination={
+            page:currentPage,
+            size:pageSize,
+            total,
+            totalPages:Math.ceil(total/pageSize)
+        };
+        return {recipe,pagination};
     }
 
     async getCurrentUserRecipes(userId: string): Promise<Array<IRecipe>> {

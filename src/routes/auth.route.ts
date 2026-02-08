@@ -17,7 +17,7 @@ router.post("/auth/reset-password/:token", authController.resetPassword);
 router.put(
     "/auth/:id",
     authorizedMiddleWare,
-    uploadProfilePic.single("profilePic"),
+    uploadProfilePic,
     authController.updateAuthUser
 );
 
