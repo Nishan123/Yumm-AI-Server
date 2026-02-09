@@ -3,7 +3,7 @@ import { UserRecipeModel, IUserRecipe } from "../models/user-recipe.model";
 export interface IUserRecipeRepository {
     addToCookbook(userRecipe: IUserRecipe): Promise<IUserRecipe>;
     savePrivateRecipe(userRecipe: IUserRecipe): Promise<IUserRecipe>;
-    getUserCookbook(userId: string): Promise<Array<IUserRecipe>>;
+    getUserCookbook(userId: string, page: number, size: number, searchTerm?: string): Promise<{ recipes: Array<IUserRecipe>; total: number }>;
     getUserRecipe(userRecipeId: string): Promise<IUserRecipe | null>;
     getUserRecipeByOriginal(userId: string, originalRecipeId: string): Promise<IUserRecipe | null>;
     updateUserRecipe(userRecipe: Partial<IUserRecipe> & { userRecipeId: string }): Promise<IUserRecipe | null>;
@@ -24,9 +24,19 @@ export class UserRecipeRepository implements IUserRecipeRepository {
         return created;
     }
 
-    async getUserCookbook(userId: string): Promise<Array<IUserRecipe>> {
-        const recipes = await UserRecipeModel.find({ userId }).sort({ addedAt: -1 });
-        return recipes;
+    async getUserCookbook(userId: string, page: number, size: number, searchTerm?: string): Promise<{ recipes: Array<IUserRecipe>; total: number }> {
+        const filter: any = { userId };
+        if (searchTerm) {
+            filter.$or = [
+                { recipeName: { $regex: searchTerm, $options: 'i' } },
+                { cuisine: { $regex: searchTerm, $options: 'i' } }
+            ];
+        }
+        const [recipes, total] = await Promise.all([
+            UserRecipeModel.find(filter).sort({ addedAt: -1 }).skip((page - 1) * size).limit(size),
+            UserRecipeModel.countDocuments(filter)
+        ]);
+        return { recipes, total };
     }
 
     async getUserRecipe(userRecipeId: string): Promise<IUserRecipe | null> {

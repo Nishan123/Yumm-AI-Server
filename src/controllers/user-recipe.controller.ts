@@ -13,8 +13,6 @@ export class UserRecipeController {
 
     /**
      * Save a private recipe directly to user's cookbook
-     * POST /api/cookbook/private
-     * Body: Recipe data with userId
      */
     savePrivateRecipe = async (req: Request, res: Response): Promise<void> => {
         try {
@@ -41,8 +39,6 @@ export class UserRecipeController {
 
     /**
      * Add a recipe to user's cookbook
-     * POST /api/cookbook/add
-     * Body: { userId: string, recipeId: string }
      */
     addToCookbook = async (req: Request, res: Response): Promise<void> => {
         try {
@@ -68,20 +64,25 @@ export class UserRecipeController {
     };
 
     /**
-     * Get all recipes in user's cookbook
-     * GET /api/cookbook/:userId
+     * Get all recipes in user's cookbook with pagination
      */
     getUserCookbook = async (req: Request, res: Response): Promise<void> => {
         try {
             const { userId } = req.params;
+            const { page, size, searchTerm } = req.query;
 
             if (!userId) {
                 sendError(res, "userId is required", 400);
                 return;
             }
 
-            const recipes = await this.userRecipeService.getUserCookbook(userId);
-            sendSuccess(res, recipes);
+            const result = await this.userRecipeService.getUserCookbook(
+                userId,
+                page as string,
+                size as string,
+                searchTerm as string
+            );
+            sendSuccess(res, result);
         } catch (error) {
             sendError(res, (error as Error).message, 500);
         }
@@ -89,7 +90,6 @@ export class UserRecipeController {
 
     /**
      * Get a specific user recipe
-     * GET /api/cookbook/recipe/:userRecipeId
      */
     getUserRecipe = async (req: Request, res: Response): Promise<void> => {
         try {
@@ -114,7 +114,6 @@ export class UserRecipeController {
 
     /**
      * Get user's copy of a recipe by original recipe ID
-     * GET /api/cookbook/:userId/original/:originalRecipeId
      */
     getUserRecipeByOriginal = async (req: Request, res: Response): Promise<void> => {
         try {
@@ -139,8 +138,6 @@ export class UserRecipeController {
 
     /**
      * Update user's recipe progress
-     * PUT /api/cookbook/recipe/:userRecipeId
-     * Body: { ingredients?: [], steps?: [], initialPreparation?: [], kitchenTools?: [] }
      */
     updateUserRecipe = async (req: Request, res: Response): Promise<void> => {
         try {
@@ -165,7 +162,6 @@ export class UserRecipeController {
     };
 
     /**
-     * Remove a recipe from user's cookbook
      * DELETE /api/cookbook/recipe/:userRecipeId
      */
     removeFromCookbook = async (req: Request, res: Response): Promise<void> => {
@@ -191,7 +187,6 @@ export class UserRecipeController {
 
     /**
      * Check if a recipe is in user's cookbook
-     * GET /api/cookbook/:userId/check/:originalRecipeId
      */
     isRecipeInCookbook = async (req: Request, res: Response): Promise<void> => {
         try {
@@ -211,7 +206,6 @@ export class UserRecipeController {
 
     /**
      * Reset progress for a user's recipe
-     * POST /api/cookbook/recipe/:userRecipeId/reset
      */
     resetProgress = async (req: Request, res: Response): Promise<void> => {
         try {
@@ -236,8 +230,6 @@ export class UserRecipeController {
 
     /**
      * Full update of a user's recipe content (not just progress)
-     * PUT /api/cookbook/recipe/:userRecipeId/full
-     * Body: Full recipe data
      */
     fullUpdateUserRecipe = async (req: Request, res: Response): Promise<void> => {
         try {

@@ -133,21 +133,37 @@ export class UserRecipeService {
     }
 
     /**
-     * Get all recipes in user's cookbook
+     * Get all recipes in user's cookbook with pagination
      * This includes:
      * 1. Recipes from UserRecipe collection (cookbook-added recipes)
      * 2. Recipes from Recipe collection where generatedBy matches userId (user-generated recipes)
      */
-    async getUserCookbook(userId: string): Promise<Array<IUserRecipe>> {
-        // Fetch cookbook recipes (UserRecipe collection)
-        const cookbookRecipes = await this.userRecipeRepository.getUserCookbook(userId);
+    async getUserCookbook(userId: string, page?: string, size?: string, searchTerm?: string) {
+        const currentPage = page ? parseInt(page, 10) : 1;
+        const pageSize = size ? parseInt(size, 10) : 10;
 
-        // Fetch user-generated recipes (Recipe collection)
-        const userGeneratedRecipes = await this.recipeRepository.getCurrentUserRecipe(userId);
+        // Get cookbook recipes with pagination
+        const { recipes: cookbookRecipes, total: cookbookTotal } = await this.userRecipeRepository.getUserCookbook(
+            userId,
+            currentPage,
+            pageSize,
+            searchTerm
+        );
 
-        // Transform user-generated recipes to UserRecipe structure
+        // Get user-generated recipes (apply search filter if provided)
+        let userGeneratedRecipes = await this.recipeRepository.getCurrentUserRecipe(userId);
+
+        // Apply search filtering to user-generated recipes if searchTerm is provided
+        if (searchTerm) {
+            const searchRegex = new RegExp(searchTerm, 'i');
+            userGeneratedRecipes = userGeneratedRecipes.filter(
+                (recipe) =>
+                    searchRegex.test(recipe.recipeName) ||
+                    (recipe.cuisine && searchRegex.test(recipe.cuisine))
+            );
+        }
+
         const transformedGeneratedRecipes: IUserRecipe[] = userGeneratedRecipes.map((recipe: IRecipe) => {
-            // Create a temporary userRecipeId to identify this as a generated recipe not in cookbook
             const tempUserRecipeId = `temp-${recipe.recipeId}`;
 
             return {
@@ -189,12 +205,22 @@ export class UserRecipeService {
                 images: recipe.images,
                 nutrition: recipe.nutrition,
                 servings: recipe.servings,
-                addedAt: recipe.createdAt, // Use recipe creation date as addedAt
+                addedAt: recipe.createdAt,
             } as IUserRecipe;
         });
 
         // Combine both lists, with cookbook recipes first
-        return [...cookbookRecipes, ...transformedGeneratedRecipes];
+        const allRecipes = [...cookbookRecipes, ...transformedGeneratedRecipes];
+        const total = cookbookTotal + transformedGeneratedRecipes.length;
+
+        const pagination = {
+            page: currentPage,
+            size: pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize)
+        };
+
+        return { recipes: allRecipes, pagination };
     }
 
     /**
