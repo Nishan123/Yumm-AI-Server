@@ -134,9 +134,6 @@ export class UserRecipeService {
 
     /**
      * Get all recipes in user's cookbook with pagination
-     * This includes:
-     * 1. Recipes from UserRecipe collection (cookbook-added recipes)
-     * 2. Recipes from Recipe collection where generatedBy matches userId (user-generated recipes)
      */
     async getUserCookbook(userId: string, page?: string, size?: string, searchTerm?: string) {
         const currentPage = page ? parseInt(page, 10) : 1;

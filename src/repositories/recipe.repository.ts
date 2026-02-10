@@ -6,6 +6,7 @@ export interface IRecipeReposiory {
     getRecipe(recipeId: string): Promise<IRecipe | null>;
     getAllRecipe(page: number, size: number, searchTerm?: string): Promise<{ recipe: IRecipe[], total: number }>;
     getPublicRecipes(page: number, size: number, searchTerm?: string): Promise<{ recipe: IRecipe[], total: number }>;
+    getLikedRecipes(userId: string, page: number, size: number, searchTerm?: string): Promise<{ recipe: IRecipe[], total: number }>;
     getCurrentUserRecipe(userId: string): Promise<Array<IRecipe>>;
     updateRecipe(recipe: IRecipe): Promise<IRecipe>;
     deleteRecipe(recipeId: string): Promise<void>;
@@ -32,6 +33,22 @@ export class RecipeRepository implements IRecipeReposiory {
     async getPublicRecipes(page: number, size: number, searchTerm?: string)
         : Promise<{ recipe: IRecipe[]; total: number; }> {
         const filter: QueryFilter<IRecipe> = { isPublic: true };
+        if (searchTerm) {
+            filter.$or = [
+                { recipeName: { $regex: searchTerm, $options: 'i' } },
+                { cuisine: { $regex: searchTerm, $options: 'i' } }
+            ];
+        }
+        const [recipe, total] = await Promise.all([
+            RecipeModel.find(filter).skip((page - 1) * size).limit(size),
+            RecipeModel.countDocuments(filter)
+        ]);
+        return { recipe, total };
+    }
+
+    async getLikedRecipes(userId: string, page: number, size: number, searchTerm?: string)
+        : Promise<{ recipe: IRecipe[]; total: number; }> {
+        const filter: QueryFilter<IRecipe> = { likes: userId };
         if (searchTerm) {
             filter.$or = [
                 { recipeName: { $regex: searchTerm, $options: 'i' } },

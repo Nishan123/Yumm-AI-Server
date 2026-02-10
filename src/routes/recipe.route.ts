@@ -12,6 +12,7 @@ router.get("/recipe/:recipeId", recipeController.getRecipe);
 router.get("/userRecipe/:userId", recipeController.getCurrentUserRecipes);
 router.get("/allRecipes", recipeController.getAllRecipes);
 router.get("/publicRecipes", recipeController.getPublicRecipes);
+router.get("/likedRecipes/:userId", authorizedMiddleWare, recipeController.getLikedRecipes);
 router.put("/recipe/:recipeId", recipeController.updateRecipe);
 router.delete("/recipe/:recipeId", recipeController.deleteRecipe);
 router.delete("/recipe/:recipeId/cascade", recipeController.deleteRecipeWithCascade);

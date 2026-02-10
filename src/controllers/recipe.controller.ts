@@ -103,7 +103,28 @@ export class RecipeController {
 
     getPublicRecipes = async (_req: Request, res: Response): Promise<void> => {
         try {
-            const recipes = await this.recipeService.getPublicRecipes();
+            const { page, size, searchTerm } = _req.query;
+            const recipes = await this.recipeService.getPublicRecipes(
+                page as string,
+                size as string,
+                searchTerm as string
+            );
+            sendSuccess(res, recipes);
+        } catch (error) {
+            sendError(res, (error as Error).message, 500);
+        }
+    };
+
+    getLikedRecipes = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { userId } = req.params;
+            const { page, size, searchTerm } = req.query;
+            const recipes = await this.recipeService.getLikedRecipes(
+                userId,
+                page as string,
+                size as string,
+                searchTerm as string
+            );
             sendSuccess(res, recipes);
         } catch (error) {
             sendError(res, (error as Error).message, 500);
