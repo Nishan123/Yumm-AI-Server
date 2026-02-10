@@ -7,14 +7,20 @@ import { GOOGLE_CLIENT_ID } from "../config";
 import bcryptjs from "bcryptjs";
 import fs from "fs";
 import path from "path";
+import { NotificationService } from "./notification.service";
 
 export class UserService {
     private userRepository: IUserRepository;
     private googleClient: OAuth2Client;
+    private notificationService: NotificationService;
 
-    constructor(userRepository: IUserRepository = new UserRepository()) {
+    constructor(
+        userRepository: IUserRepository = new UserRepository(),
+        notificationService: NotificationService = new NotificationService()
+    ) {
         this.userRepository = userRepository;
         this.googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+        this.notificationService = notificationService;
     }
 
     async getAllUsers(): Promise<Array<UserType>> {
@@ -186,8 +192,18 @@ export class UserService {
             throw new HttpError(401, "Google account email does not match");
         }
 
+
         // Delete the user
         await this.userRepository.deleteUser(uid);
         return true;
+    }
+    async registerPushyToken(uid: string, token: string): Promise<UserType | null> {
+        console.log(`[UserService] Registering push token for user ${uid}: ${token}`);
+        return this.userRepository.updateUser(uid, { pushyToken: token });
+    }
+
+    async sendAdminNotification(title: string, message: string): Promise<void> {
+        const tokens = await this.userRepository.getUsersWithPushyTokens();
+        await this.notificationService.sendPushNotification(tokens, title, message);
     }
 }

@@ -12,6 +12,7 @@ const UserScheme: Schema = new Schema(
         role: { type: String, enum: ["admin", "user"], default: "user" },
         isSubscribedUser: { type: Boolean, default: false },
         password: { type: String },
+        pushyToken: { type: String }
     },
     {
         timestamps: true,

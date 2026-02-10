@@ -16,5 +16,6 @@ export const UpdateUserDto = UserScheme.pick({
     authProvider: UserScheme.shape.authProvider.optional(),
     updatedAt: UserScheme.shape.updatedAt.optional(),
     isSubscribedUser: UserScheme.shape.isSubscribedUser.optional(),
+    pushyToken: UserScheme.shape.pushyToken.optional()
 });
 export type UpdateUserDto = z.infer<typeof UpdateUserDto>;

@@ -15,6 +15,7 @@ export interface IUserRepository {
     updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null>;
     deleteUser(uid: string): Promise<void>;
     deleteUserById(id: string): Promise<void>;
+    getUsersWithPushyTokens(): Promise<Array<string>>;
 }
 
 
@@ -106,5 +107,18 @@ export class UserRepository implements IUserRepository {
             return;
         }
         await UserModel.findByIdAndDelete(id).exec();
+    }
+
+    async getUsersWithPushyTokens(): Promise<Array<string>> {
+        const users = await UserModel.find({
+            pushyToken: { $exists: true, $nin: [null, ""] }
+        }).select("pushyToken").exec();
+
+        const tokens = users
+            .map(u => u.pushyToken)
+            .filter((token): token is string => !!token);
+
+        console.log(`[UserRepository] Found ${tokens.length} users with push tokens.`);
+        return tokens;
     }
 }

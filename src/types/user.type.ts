@@ -10,6 +10,7 @@ export const UserScheme = z.object({
     role: z.enum(["admin", "user"]).default("user"),
     isSubscribedUser: z.boolean().default(false),
     password: z.string().min(6, { error: "Password must be at least 6 char long" }).optional(),
+    pushyToken: z.string().optional(),
     createdAt: z.coerce.date().default(() => new Date()),
     updatedAt: z.coerce.date().default(() => new Date()),
 });

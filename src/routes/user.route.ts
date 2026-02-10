@@ -19,4 +19,8 @@ router.post("/users/:uid/profile-pic", authorizedMiddleWare, uploadProfilePic, u
 router.delete("/users/:uid/delete-with-password", authorizedMiddleWare, userController.deleteUserWithPassword);
 router.delete("/users/:uid/delete-with-google", authorizedMiddleWare, userController.deleteUserWithGoogle);
 
+// Notification routes
+router.post("/users/:uid/push-token", authorizedMiddleWare, userController.registerPushyToken);
+router.post("/admin/send-notification", authorizedMiddleWare, userController.sendAdminNotification);
+
 export default router;
