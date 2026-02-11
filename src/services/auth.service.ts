@@ -220,6 +220,63 @@ export class AuthService {
         }
     }
 
+    async verifyPassword(uid: string, password?: string): Promise<boolean> {
+        if (!password) {
+            throw new HttpError(400, "Password is required");
+        }
+        const user = await this.userRepository.getUser(uid);
+        if (!user) {
+            throw new HttpError(404, "User not found");
+        }
+        if (!user.password) {
+            throw new HttpError(400, "This account uses Google Sign-In. You cannot verify password.");
+        }
+        const isValid = await bcryptjs.compare(password, user.password);
+        return isValid;
+    }
+
+    async changePassword(uid: string, oldPassword?: string, newPassword?: string): Promise<SafeUser> {
+        if (!oldPassword || !newPassword) {
+            throw new HttpError(400, "Old password and new password are required");
+        }
+
+        const user = await this.userRepository.getUser(uid);
+        if (!user) {
+            throw new HttpError(404, "User not found");
+        }
+
+        if (!user.password) {
+            throw new HttpError(400, "This account uses Google Sign-In. You cannot change password.");
+        }
+
+        const isOldPasswordValid = await bcryptjs.compare(oldPassword, user.password);
+        if (!isOldPasswordValid) {
+            throw new HttpError(401, "Invalid old password");
+        }
+
+        // Validate new password strength
+        // We can reuse ResetPasswordDto validation or a similar one if available, 
+        // strictly checking 'newPassword' against the schema rules for 'password'
+        // For now, I'll allow simple changes but ideally we use a DTO.
+        // Let's use ResetPasswordDto for consistency if it matches { newPassword: ... }
+        const validation = ResetPasswordDto.safeParse({ newPassword });
+        if (!validation.success) {
+            throw new HttpError(422, validation.error.issues[0].message);
+        }
+
+        const hashedPassword = await bcryptjs.hash(newPassword, 10);
+
+        // We Use updateUser (by uid) or updateUserById. The repo has both. 
+        // user.repository.ts: updateUser(uid, updates)
+        const updatedUser = await this.userRepository.updateUser(uid, { password: hashedPassword });
+
+        if (!updatedUser) {
+            throw new HttpError(500, "Failed to update password");
+        }
+
+        return this.sanitizeUser(updatedUser);
+    }
+
 
 }
 

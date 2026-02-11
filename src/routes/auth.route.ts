@@ -21,5 +21,19 @@ router.put(
     authController.updateAuthUser
 );
 
+// Verify current password (protected)
+router.post(
+    "/auth/:uid/verify-password",
+    authorizedMiddleWare,
+    authController.verifyPassword
+);
+
+// Change password (protected) - double checks old password
+router.post(
+    "/auth/:uid/change-password",
+    authorizedMiddleWare,
+    authController.changePassword
+);
+
 export default router;
 

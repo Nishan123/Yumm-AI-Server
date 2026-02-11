@@ -40,7 +40,7 @@ export class RecipeRepository implements IRecipeReposiory {
             ];
         }
         const [recipe, total] = await Promise.all([
-            RecipeModel.find(filter).skip((page - 1) * size).limit(size),
+            RecipeModel.find(filter).sort({ createdAt: -1 }).skip((page - 1) * size).limit(size),
             RecipeModel.countDocuments(filter)
         ]);
         return { recipe, total };

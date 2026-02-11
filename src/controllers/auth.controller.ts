@@ -124,5 +124,49 @@ export class AuthController {
             sendError(res, error.message || "Internal Server Error", 500);
         }
     }
+
+    verifyPassword = async (req: Request, res: Response) => {
+        try {
+            const { uid } = req.params;
+            const { password } = req.body;
+            const isValid = await this.authService.verifyPassword(uid, password);
+            if (isValid) {
+                sendSuccess(res, { isValid: true }, 200, "Password verified successfully");
+            } else {
+                // If service returns false (though it might just return true or throw for invalid)
+                // In my service logic: compare returns boolean.
+                // Re-reading service: 
+                // const isValid = await bcryptjs.compare(password, user.password);
+                // return isValid;
+                // If invalid, it returns false. If user not found etc, it throws.
+                if (!isValid) {
+                    sendError(res, "Invalid password", 401);
+                    return;
+                }
+                sendSuccess(res, { isValid: true }, 200, "Password verified successfully");
+            }
+        } catch (error: any) {
+            if (error instanceof HttpError) {
+                sendError(res, error.message, error.statusCode);
+                return;
+            }
+            sendError(res, error.message || "Internal Server Error", 500);
+        }
+    }
+
+    changePassword = async (req: Request, res: Response) => {
+        try {
+            const { uid } = req.params;
+            const { oldPassword, newPassword } = req.body;
+            const updatedUser = await this.authService.changePassword(uid, oldPassword, newPassword);
+            sendSuccess(res, updatedUser, 200, "Password changed successfully");
+        } catch (error: any) {
+            if (error instanceof HttpError) {
+                sendError(res, error.message, error.statusCode);
+                return;
+            }
+            sendError(res, error.message || "Internal Server Error", 500);
+        }
+    }
 }
 

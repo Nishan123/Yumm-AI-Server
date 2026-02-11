@@ -137,7 +137,7 @@ export class UserService {
         }
 
         // Check if user is using emailPassword auth
-        if (existing.authProvider !== "email_password") {
+        if (existing.authProvider !== "emailPassword") {
             throw new HttpError(400, "This account uses Google Sign-In. Please verify with Google.");
         }
 
