@@ -36,12 +36,12 @@ export class RecipeService {
         return { recipe, pagination };
     }
 
-    async getPublicRecipes(page?: string, size?: string, searchTerm?: string) {
+    async getPublicRecipes(page?: string, size?: string, searchTerm?: string, filters?: { experienceLevel?: string, mealType?: string, minCalorie?: number, maxCalorie?: number }) {
         const currentPage = page ? parseInt(page, 10) : 1;
         const pageSize = size ? parseInt(size, 10) : 10;
-        const { recipe, total } = await this.recipeRepository.getPublicRecipes(currentPage, pageSize, searchTerm);
+        const { recipe, total } = await this.recipeRepository.getPublicRecipes(currentPage, pageSize, searchTerm, filters);
         const pagination = {
-            page: currentPage,
+        page: currentPage,
             size: pageSize,
             total,
             totalPages: Math.ceil(total / pageSize)
@@ -53,6 +53,19 @@ export class RecipeService {
         const currentPage = page ? parseInt(page, 10) : 1;
         const pageSize = size ? parseInt(size, 10) : 10;
         const { recipe, total } = await this.recipeRepository.getLikedRecipes(userId, currentPage, pageSize, searchTerm);
+        const pagination = {
+            page: currentPage,
+            size: pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize)
+        };
+        return { recipe, pagination };
+    }
+
+    async getTopPublicRecipes(page?: string, size?: string, searchTerm?: string) {
+        const currentPage = page ? parseInt(page, 10) : 1;
+        const pageSize = size ? parseInt(size, 10) : 10;
+        const { recipe, total } = await this.recipeRepository.getTopPublicRecipes(currentPage, pageSize, searchTerm);
         const pagination = {
             page: currentPage,
             size: pageSize,

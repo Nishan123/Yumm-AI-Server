@@ -103,8 +103,32 @@ export class RecipeController {
 
     getPublicRecipes = async (_req: Request, res: Response): Promise<void> => {
         try {
-            const { page, size, searchTerm } = _req.query;
+            const { page, size, searchTerm, experienceLevel, mealType, minCalorie, maxCalorie } = _req.query;
+
+            const filters = {
+                experienceLevel: experienceLevel as string,
+                mealType: mealType as string,
+                minCalorie: minCalorie ? Number(minCalorie) : undefined,
+                maxCalorie: maxCalorie ? Number(maxCalorie) : undefined
+            };
+
             const recipes = await this.recipeService.getPublicRecipes(
+                page as string,
+                size as string,
+                searchTerm as string,
+                filters
+            );
+            sendSuccess(res, recipes);
+        } catch (error) {
+            sendError(res, (error as Error).message, 500);
+        }
+    };
+    getLikedRecipes = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { userId } = req.params;
+            const { page, size, searchTerm } = req.query;
+            const recipes = await this.recipeService.getLikedRecipes(
+                userId,
                 page as string,
                 size as string,
                 searchTerm as string
@@ -115,12 +139,10 @@ export class RecipeController {
         }
     };
 
-    getLikedRecipes = async (req: Request, res: Response): Promise<void> => {
+    getTopPublicRecipes = async (_req: Request, res: Response): Promise<void> => {
         try {
-            const { userId } = req.params;
-            const { page, size, searchTerm } = req.query;
-            const recipes = await this.recipeService.getLikedRecipes(
-                userId,
+            const { page, size, searchTerm } = _req.query;
+            const recipes = await this.recipeService.getTopPublicRecipes(
                 page as string,
                 size as string,
                 searchTerm as string
