@@ -6,6 +6,8 @@ import authRoutes from "./routes/auth.route";
 import recipeRoutes from "./routes/recipe.route";
 import userRecipeRoutes from "./routes/user-recipe.route";
 import adminUserRoutes from "./routes/admin/user.route";
+import bugReportRoutes from "./routes/bug-report.route";
+import adminBugReportRoutes from "./routes/admin/bug-report.route";
 
 const app = express();
 
@@ -27,5 +29,7 @@ app.use("/api", authRoutes);
 app.use("/api", recipeRoutes);
 app.use("/api", userRecipeRoutes);
 app.use("/api", adminUserRoutes);
+app.use("/api", bugReportRoutes);
+app.use("/api", adminBugReportRoutes);
 
 export default app;

@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { UserScheme } from "../types/user.type";
 
-// NOTE: profilePic is intentionally excluded from UpdateUserDto.
-// Profile pictures must be updated via the dedicated uploadProfilePic endpoint only.
 export const UpdateUserDto = UserScheme.pick({
     uid: true,
     fullName: true,
