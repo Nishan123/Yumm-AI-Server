@@ -153,21 +153,28 @@ export class AuthService {
 
         if (file) {
             const port = process.env.PORT || 5000;
-            const ext = file.filename.split('.').pop();
+            const ext = path.extname(file.originalname).toLowerCase();
             const oldPath = file.path;
-            const newFilename = `pp-${uid}.${ext}`;
+
+            // Generate standard filename
+            const newFilename = `pp-${uid}${ext}`;
             const newPath = path.join(path.dirname(oldPath), newFilename);
 
-            try {
-                if (fs.existsSync(newPath)) {
+            // Only rename if the filename is different (avoid renaming to self)
+            if (file.filename !== newFilename) {
+                try {
+                    // If target file exists and it's not the same file, delete it first (Windows requirement sometimes)
+                    if (fs.existsSync(newPath) && path.resolve(oldPath) !== path.resolve(newPath)) {
+                        fs.unlinkSync(newPath);
+                    }
+                    fs.renameSync(oldPath, newPath);
+                } catch (error) {
+                    console.error("Error renaming profile pic:", error);
+                    throw new HttpError(500, "Failed to process profile picture");
                 }
-                fs.renameSync(oldPath, newPath);
-                updates.profilePic = `http://localhost:${port}/public/profilePic/${newFilename}`;
-            } catch (error) {
-                console.error("Error renaming profile pic:", error);
-
-                throw new HttpError(500, "Failed to process profile picture");
             }
+
+            updates.profilePic = `http://localhost:${port}/public/profilePic/${newFilename}`;
         }
 
         const updatedUser = await this.userRepository.updateUser(uid, updates);

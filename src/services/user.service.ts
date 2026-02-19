@@ -8,6 +8,7 @@ import bcryptjs from "bcryptjs";
 import fs from "fs";
 import path from "path";
 import { NotificationService } from "./notification.service";
+import { NotificationTargetAudience } from "../types/notification.type";
 
 export class UserService {
     private userRepository: IUserRepository;
@@ -203,7 +204,10 @@ export class UserService {
     }
 
     async sendAdminNotification(title: string, message: string): Promise<void> {
-        const tokens = await this.userRepository.getUsersWithPushyTokens();
-        await this.notificationService.sendPushNotification(tokens, title, message);
+        await this.notificationService.sendPushNotification({
+            title,
+            message,
+            targetAudience: NotificationTargetAudience.ALL
+        });
     }
 }

@@ -9,3 +9,10 @@ export const CreateBugReportDto = BugReportScheme.pick({
 });
 
 export type CreateBugReportDto = z.infer<typeof CreateBugReportDto>;
+
+export const UpdateBugReportDto = BugReportScheme.pick({
+    isResolved: true,
+    status: true,
+}).partial();
+
+export type UpdateBugReportDto = z.infer<typeof UpdateBugReportDto>;

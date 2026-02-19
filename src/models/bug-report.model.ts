@@ -5,16 +5,20 @@ const BugReportSchema: Schema = new Schema(
     {
         reportId: { type: String, required: true, unique: true },
         reportedBy: { type: String, required: true },
-        screenshotUrl: { type: String, required: true },
+        screenshotUrl: { type: String, required: false, default: "" },
         problemType: { type: String, required: true },
         reportDescription: { type: String, required: true },
-        isResolved: { type: Boolean, default: false }
+        isResolved: { type: Boolean, default: false },
+        status: { type: String, enum: ['open', 'in-progress', 'resolved', 'closed'], default: 'open' }
     },
     {
         timestamps: true,
     }
 );
 
-export interface IBugReport extends BugReportType, Document { }
+export interface IBugReport extends Omit<BugReportType, '_id'>, Document {
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 export const BugReportModel = mongoose.model<IBugReport>("BugReport", BugReportSchema);

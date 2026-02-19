@@ -3,3 +3,4 @@ dist
 .env
 public/profilePic
 public/recipeImages
+public/bugReportImages

@@ -16,7 +16,8 @@ export class BugReportService {
         const reportToCreate: BugReportType = {
             ...validatedData,
             reportId: uuidv4(),
-            isResolved: false
+            isResolved: false,
+            status: 'open'
         };
 
         return this.bugReportRepository.createAReport(reportToCreate);

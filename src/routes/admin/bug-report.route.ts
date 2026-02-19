@@ -14,11 +14,25 @@ router.get(
     adminBugReportController.getAllReports
 );
 
+router.get(
+    "/admin/bug-reports/:id",
+    authorizedMiddleWare,
+    isAdminMiddleware,
+    adminBugReportController.getReportById
+);
+
 router.put(
     "/admin/bug-reports/:id/resolve",
     authorizedMiddleWare,
     isAdminMiddleware,
     adminBugReportController.resolveBug
+);
+
+router.patch(
+    "/admin/bug-reports/:id/status",
+    authorizedMiddleWare,
+    isAdminMiddleware,
+    adminBugReportController.updateStatus
 );
 
 router.delete(

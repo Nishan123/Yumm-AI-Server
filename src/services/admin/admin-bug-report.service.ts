@@ -9,11 +9,11 @@ export class AdminBugReportService {
         this.bugReportRepository = bugReportRepository;
     }
 
-    async getAllReports(page?: string, size?: string, searchTerm?: string) {
+    async getAllReports(page?: string, size?: string, searchTerm?: string, status?: string) {
         const currentPage = page ? parseInt(page, 10) : 1;
         const pageSize = size ? parseInt(size, 10) : 10;
 
-        const { bugReport, total } = await this.bugReportRepository.getAllReports(currentPage, pageSize, searchTerm);
+        const { bugReport, total } = await this.bugReportRepository.getAllReports(currentPage, pageSize, searchTerm, status);
 
         const pagination = {
             page: currentPage,
@@ -22,7 +22,23 @@ export class AdminBugReportService {
             totalPages: Math.ceil(total / pageSize)
         };
 
-        return { bugReport, pagination };
+        return { reports: bugReport, pagination };
+    }
+
+    async getReportById(bugId: string): Promise<IBugReport> {
+        const report = await this.bugReportRepository.getReportById(bugId);
+        if (!report) {
+            throw new HttpError(404, "Bug report not found");
+        }
+        return report;
+    }
+
+    async updateStatus(bugId: string, status: string): Promise<IBugReport> {
+        const report = await this.bugReportRepository.updateStatus(bugId, status);
+        if (!report) {
+            throw new HttpError(404, "Bug report not found");
+        }
+        return report;
     }
 
     async resolveBug(bugId: string): Promise<IBugReport> {

@@ -14,7 +14,7 @@ const profilePicStorage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: (req, _file, cb) => {
-        const uid = req.params.uid;
+        const uid = req.params.uid || req.params.id; // Support both route parameter names
         const ext = path.extname(_file.originalname).toLowerCase();
         // Validate extension
         if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
