@@ -4,8 +4,6 @@ export const ShoppingListItemScheme = z.object({
     _id: z.any().optional(),
     itemId: z.string().min(1, { message: "Item Id required" }),
     userId: z.string().min(1, { message: "User Id required" }),
-    name: z.string().min(1, { message: "Item name required" }),
-    imageUrl: z.string().optional().default(""),
     quantity: z.string().min(1, { message: "Quantity required" }),
     unit: z.string().min(1, { message: "Unit required" }),
     category: z.string().optional().default("none"),

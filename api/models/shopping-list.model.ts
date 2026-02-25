@@ -5,8 +5,6 @@ const ShoppingListItemSchema: Schema = new Schema(
     {
         itemId: { type: String, required: true, unique: true },
         userId: { type: String, required: true, index: true },
-        name: { type: String, required: true },
-        imageUrl: { type: String, required: false, default: "" },
         quantity: { type: String, required: true },
         unit: { type: String, required: true },
         category: { type: String, required: false, default: "none" },
