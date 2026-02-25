@@ -10,6 +10,7 @@ import bugReportRoutes from "./routes/bug-report.route";
 import adminBugReportRoutes from "./routes/admin/bug-report.route";
 import notificationRoutes from "./routes/notification.route";
 import { dashboardRoutes } from "./routes/admin/dashboard.route";
+import webhookRoutes from "./routes/webhook.route";
 
 const app = express();
 
@@ -35,5 +36,6 @@ app.use("/api", bugReportRoutes);
 app.use("/api", adminBugReportRoutes);
 app.use("/api", notificationRoutes);
 app.use("/api/admin/dashboard", dashboardRoutes);
+app.use("/api/webhooks", webhookRoutes);
 
 export default app;
