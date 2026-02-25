@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import app from "./app";
-import { connectToDb } from "./database/connect-db";
 
 dotenv.config();
 
@@ -14,17 +13,6 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-// Middleware to ensure DB connection on every request
-app.use(async (req, res, next) => {
-  try {
-    await connectToDb();
-  } catch (error) {
-    console.error("Database connection failed:", error);
-    return res.status(500).json({ success: false, message: "Database connection failed" });
-  }
-  next();
-});
-
 // For local development
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
@@ -34,3 +22,4 @@ if (process.env.NODE_ENV !== "production") {
 
 export default app;
 module.exports = app;
+
