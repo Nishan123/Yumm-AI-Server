@@ -14,18 +14,13 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-let isDbConnected = false;
-
 // Middleware to ensure DB connection on every request
 app.use(async (req, res, next) => {
-  if (!isDbConnected) {
-    try {
-      await connectToDb();
-      isDbConnected = true;
-    } catch (error) {
-      console.error("Database connection failed:", error);
-      return res.status(500).json({ success: false, message: "Database connection failed" });
-    }
+  try {
+    await connectToDb();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    return res.status(500).json({ success: false, message: "Database connection failed" });
   }
   next();
 });
@@ -38,3 +33,4 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export default app;
+module.exports = app;
