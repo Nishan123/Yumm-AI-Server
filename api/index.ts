@@ -14,12 +14,27 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-connectToDb().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}).catch((err) => {
-  console.error("Failed to start server", err);
+let isDbConnected = false;
+
+// Middleware to ensure DB connection on every request
+app.use(async (req, res, next) => {
+  if (!isDbConnected) {
+    try {
+      await connectToDb();
+      isDbConnected = true;
+    } catch (error) {
+      console.error("Database connection failed:", error);
+      return res.status(500).json({ success: false, message: "Database connection failed" });
+    }
+  }
+  next();
 });
+
+// For local development
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Server running locally on port ${PORT}`);
+  });
+}
 
 export default app;
