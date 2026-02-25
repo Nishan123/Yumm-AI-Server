@@ -27,18 +27,7 @@ export class AdminUserService {
 
         let profilePicUrl = payload.profilePic;
         if (file) {
-            const port = process.env.PORT || 5000;
-            const ext = file.filename.split('.').pop();
-            const oldPath = file.path;
-            const newFilename = `pp-${uid}.${ext}`;
-            const newPath = path.join(path.dirname(oldPath), newFilename);
-            try {
-                if (fs.existsSync(newPath)) fs.unlinkSync(newPath); // optional
-                fs.renameSync(oldPath, newPath);
-                profilePicUrl = `http://localhost:${port}/public/profilePic/${newFilename}`;
-            } catch (e) {
-                console.error("Error renaming file", e);
-            }
+            profilePicUrl = file.path;
         }
 
         // Default pic
@@ -96,18 +85,7 @@ export class AdminUserService {
 
         let profilePicUrl = updates.profilePic;
         if (file) {
-            const port = process.env.PORT || 5000;
-            const ext = file.filename.split('.').pop();
-            const oldPath = file.path;
-            const newFilename = `pp-${existing.uid}.${ext}`;
-            const newPath = path.join(path.dirname(oldPath), newFilename);
-            try {
-                if (fs.existsSync(newPath)) fs.unlinkSync(newPath);
-                fs.renameSync(oldPath, newPath);
-                profilePicUrl = `http://localhost:${port}/public/profilePic/${newFilename}`;
-            } catch (e) {
-                console.error("Error renaming file", e);
-            }
+            profilePicUrl = file.path;
         }
 
         const payload: any = {

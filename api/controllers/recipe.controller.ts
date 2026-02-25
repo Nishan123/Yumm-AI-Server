@@ -218,10 +218,8 @@ export class RecipeController {
                 return;
             }
 
-            // Construct public URLs
-            const imageUrls = files.map(
-                (file) => `http://localhost:${process.env.PORT || 5000}/public/recipeImages/${file.filename}`
-            );
+            // Construct public URLs from Cloudinary
+            const imageUrls = files.map((file) => file.path);
 
             sendSuccess(res, { images: imageUrls }, 200, "Images uploaded successfully");
         } catch (error) {

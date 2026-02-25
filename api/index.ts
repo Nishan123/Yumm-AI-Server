@@ -21,3 +21,5 @@ connectToDb().then(() => {
 }).catch((err) => {
   console.error("Failed to start server", err);
 });
+
+export default app;

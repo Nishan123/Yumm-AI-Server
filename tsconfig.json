@@ -10,10 +10,10 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "rootDir": "src",
+    "rootDir": "api",
     "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*"]
+  "include": ["api/**/*"]
 }

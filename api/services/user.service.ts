@@ -71,27 +71,8 @@ export class UserService {
             return existing;
         }
 
-        const port = process.env.PORT || 5000;
-        const uploadDir = path.dirname(file.path);
-
-        // Delete old profile pics for this user (any extension)
-        try {
-            const files = fs.readdirSync(uploadDir);
-            files.forEach((f) => {
-                if (f.startsWith(`pp-${uid}.`) && f !== file.filename) {
-                    try {
-                        fs.unlinkSync(path.join(uploadDir, f));
-                    } catch (err) {
-                        throw new Error("Failed to delete old profile pic");
-                    }
-                }
-            });
-        } catch (error) {
-            throw new Error("Failed to process profile picture");
-        }
-
-        // Save the URL to the user's profilePic field in the database
-        const profilePicUrl = `http://localhost:${port}/public/profilePic/${file.filename}`;
+        // Save the Cloudinary URL to the user's profilePic field in the database
+        const profilePicUrl = file.path;
         await this.userRepository.updateProfilePic(uid, profilePicUrl);
 
         // Return the full updated user so the frontend gets all fields

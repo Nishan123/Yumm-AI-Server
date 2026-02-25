@@ -38,7 +38,7 @@ export class BugReportController {
                 return;
             }
 
-            const imageUrl = `http://localhost:${process.env.PORT || 5000}/public/bugReportImages/${file.filename}`;
+            const imageUrl = file.path;
             sendSuccess(res, { imageUrl }, 200, "Screenshot uploaded successfully");
         } catch (error) {
             sendError(res, (error as Error).message, 500);
