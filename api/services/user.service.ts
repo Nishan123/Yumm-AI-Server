@@ -52,12 +52,12 @@ export class UserService {
         return this.userRepository.updateUser(uid, updates);
     }
 
-    async deleteUser(uid: string): Promise<boolean> {
+    async deleteUser(uid: string, reason?: string): Promise<boolean> {
         const existing = await this.userRepository.getUser(uid);
         if (!existing) {
             return false;
         }
-        await this.userRepository.deleteUser(uid);
+        await this.userRepository.deleteUser(uid, reason);
         return true;
     }
 
@@ -100,19 +100,19 @@ export class UserService {
         return this.userRepository.updateUserById(id, updates);
     }
 
-    async deleteUserById(id: string): Promise<boolean> {
+    async deleteUserById(id: string, reason?: string): Promise<boolean> {
         const existing = await this.userRepository.getUserById(id);
         if (!existing) {
             return false;
         }
-        await this.userRepository.deleteUserById(id);
+        await this.userRepository.deleteUserById(id, reason);
         return true;
     }
 
     /**
      * Delete user with password verification (for emailPassword auth users)
      */
-    async deleteUserWithPassword(uid: string, password: string): Promise<boolean> {
+    async deleteUserWithPassword(uid: string, password: string, reason?: string): Promise<boolean> {
         const existing = await this.userRepository.getUser(uid);
         if (!existing) {
             throw new HttpError(404, "User not found");
@@ -134,14 +134,14 @@ export class UserService {
         }
 
         // Delete the user
-        await this.userRepository.deleteUser(uid);
+        await this.userRepository.deleteUser(uid, reason);
         return true;
     }
 
     /**
      * Delete user with Google token verification (for Google auth users)
      */
-    async deleteUserWithGoogle(uid: string, idToken: string): Promise<boolean> {
+    async deleteUserWithGoogle(uid: string, idToken: string, reason?: string): Promise<boolean> {
         const existing = await this.userRepository.getUser(uid);
         if (!existing) {
             throw new HttpError(404, "User not found");
@@ -176,7 +176,7 @@ export class UserService {
 
 
         // Delete the user
-        await this.userRepository.deleteUser(uid);
+        await this.userRepository.deleteUser(uid, reason);
         return true;
     }
     async registerPushyToken(uid: string, token: string): Promise<UserType | null> {

@@ -2,6 +2,7 @@
 import { UserModel } from "../../models/user.model";
 import { RecipeModel } from "../../models/recipe.model";
 import { BugReportModel } from "../../models/bug-report.model";
+import { DeletedUserModel } from "../../models/deleted-user.model";
 
 export const getDashboardStats = async () => {
     try {
@@ -26,47 +27,89 @@ export const getDashboardStats = async () => {
 
 export const getUserGrowthStats = async () => {
     try {
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const twelveWeeksAgo = new Date();
+        // Go 11 weeks back plus the current week = 12 weeks
+        twelveWeeksAgo.setDate(twelveWeeksAgo.getDate() - 11 * 7);
+        twelveWeeksAgo.setHours(0, 0, 0, 0);
 
         const growthData = await UserModel.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: sixMonthsAgo }
+                    createdAt: { $gte: twelveWeeksAgo }
                 }
             },
             {
                 $group: {
                     _id: {
-                        month: { $month: "$createdAt" },
-                        year: { $year: "$createdAt" }
+                        week: { $isoWeek: "$createdAt" },
+                        year: { $isoWeekYear: "$createdAt" }
                     },
                     count: { $sum: 1 }
                 }
+            }
+        ]);
+
+        const deletedData = await DeletedUserModel.aggregate([
+            {
+                $match: {
+                    deletedAt: { $gte: twelveWeeksAgo }
+                }
             },
             {
-                $sort: { "_id.year": 1, "_id.month": 1 }
+                $group: {
+                    _id: {
+                        week: { $isoWeek: "$deletedAt" },
+                        year: { $isoWeekYear: "$deletedAt" }
+                    },
+                    count: { $sum: 1 }
+                }
             }
         ]);
 
         // Create a map of existing data
         const dataMap = new Map<string, number>();
         growthData.forEach(item => {
-            const key = `${item._id.year}-${item._id.month}`;
+            const key = `${item._id.year}-${item._id.week}`;
             dataMap.set(key, item.count);
         });
 
-        // Generate last 6 months list with 0 as default
+        // Subtract deleted users
+        deletedData.forEach(item => {
+            const key = `${item._id.year}-${item._id.week}`;
+            const currentCount = dataMap.get(key) || 0;
+            dataMap.set(key, currentCount - item.count);
+        });
+
+        // JS date helpers to get ISO week exactly as mongo returns it
+        const getISOWeek = (d: Date) => {
+            const date = new Date(d.getTime());
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            const week1 = new Date(date.getFullYear(), 0, 4);
+            return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        };
+        const getISOYear = (d: Date) => {
+            const date = new Date(d.getTime());
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            return date.getFullYear();
+        };
+
+        // Generate last 12 weeks list with 0 as default
         const formattedData = [];
-        for (let i = 5; i >= 0; i--) {
+        for (let i = 11; i >= 0; i--) {
             const d = new Date();
-            d.setMonth(d.getMonth() - i);
-            const year = d.getFullYear();
-            const month = d.getMonth() + 1; // 1-indexed for matching what mongo returns
-            const key = `${year}-${month}`;
+            d.setDate(d.getDate() - i * 7);
+
+            const year = getISOYear(d);
+            const week = getISOWeek(d);
+            const key = `${year}-${week}`;
+
+            // Provide a friendly name for the start of the week (Monday)
+            const startOfWeek = new Date(d);
+            startOfWeek.setDate(d.getDate() - ((d.getDay() + 6) % 7));
 
             formattedData.push({
-                name: d.toLocaleString('default', { month: 'short' }),
+                name: startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                 total: dataMap.get(key) || 0
             });
         }
@@ -95,6 +138,11 @@ export const getRecentActivity = async () => {
             .sort({ createdAt: -1 })
             .limit(LIMIT)
             .select("problemType reportedBy createdAt reportDescription");
+
+        const latestDeletedUsers = await DeletedUserModel.find()
+            .sort({ deletedAt: -1 })
+            .limit(LIMIT)
+            .select("fullName deletedReason deletedAt");
 
         // Helper to fetch user names for IDs if needed (Recipe and BugReport store generatedBy/reportedBy as UID strings usually, assuming they match UID in User model or are just strings)
         // Ideally we should lookup the user details. For now, assuming generatedBy/reportedBy might be the UID.
@@ -181,7 +229,14 @@ export const getRecentActivity = async () => {
                     date: b.createdAt,
                     details: b.problemType
                 };
-            })
+            }),
+            ...latestDeletedUsers.map(d => ({
+                user: d.fullName,
+                action: "Deleted their account",
+                type: "user_deleted",
+                date: d.deletedAt,
+                details: d.deletedReason ? `Reason: ${d.deletedReason}` : undefined
+            }))
         ];
 
         // Sort combined list and take top LIMIT items

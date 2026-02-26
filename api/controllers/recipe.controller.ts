@@ -92,9 +92,14 @@ export class RecipeController {
         }
     };
 
-    getAllRecipes = async (_req: Request, res: Response): Promise<void> => {
+    getAllRecipes = async (req: Request, res: Response): Promise<void> => {
         try {
-            const recipes = await this.recipeService.getAllRecipes();
+            const { page, size, searchTerm } = req.query;
+            const recipes = await this.recipeService.getAllRecipes(
+                page as string,
+                size as string,
+                searchTerm as string
+            );
             sendSuccess(res, recipes);
         } catch (error) {
             sendError(res, (error as Error).message, 500);

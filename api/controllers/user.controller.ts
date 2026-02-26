@@ -117,7 +117,8 @@ export class UserController {
 	deleteUser = async (req: Request, res: Response): Promise<void> => {
 		try {
 			const { uid } = req.params;
-			const deleted = await this.userService.deleteUser(uid);
+			const { reason } = req.body;
+			const deleted = await this.userService.deleteUser(uid, reason);
 			if (!deleted) {
 				sendError(res, "User not found", 404);
 				return;
@@ -157,14 +158,14 @@ export class UserController {
 	deleteUserWithPassword = async (req: Request, res: Response): Promise<void> => {
 		try {
 			const { uid } = req.params;
-			const { password } = req.body;
+			const { password, reason } = req.body;
 
 			if (!password) {
 				sendError(res, "Password is required", 400);
 				return;
 			}
 
-			const deleted = await this.userService.deleteUserWithPassword(uid, password);
+			const deleted = await this.userService.deleteUserWithPassword(uid, password, reason);
 			if (deleted) {
 				sendSuccess(res, null, 200, "User deleted successfully");
 			} else {
@@ -182,14 +183,14 @@ export class UserController {
 	deleteUserWithGoogle = async (req: Request, res: Response): Promise<void> => {
 		try {
 			const { uid } = req.params;
-			const { idToken } = req.body;
+			const { idToken, reason } = req.body;
 
 			if (!idToken) {
 				sendError(res, "Google ID token is required", 400);
 				return;
 			}
 
-			const deleted = await this.userService.deleteUserWithGoogle(uid, idToken);
+			const deleted = await this.userService.deleteUserWithGoogle(uid, idToken, reason);
 			if (deleted) {
 				sendSuccess(res, null, 200, "User deleted successfully");
 			} else {

@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { UserModel, IUser } from "../models/user.model";
+import { DeletedUserModel } from "../models/deleted-user.model";
 import { UserType } from "../types/user.type";
 import { QueryFilter } from "mongoose";
 
@@ -13,8 +14,8 @@ export interface IUserRepository {
     updateUser(uid: string, updates: Partial<IUser>): Promise<IUser | null>;
     updateUserById(id: string, updates: Partial<IUser>): Promise<IUser | null>;
     updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null>;
-    deleteUser(uid: string): Promise<void>;
-    deleteUserById(id: string): Promise<void>;
+    deleteUser(uid: string, reason?: string): Promise<void>;
+    deleteUserById(id: string, reason?: string): Promise<void>;
     getUsersWithPushyTokens(isSubscribed?: boolean): Promise<Array<string>>;
 }
 
@@ -68,8 +69,18 @@ export class UserRepository implements IUserRepository {
         return doc ? doc : null;
     }
 
-    async deleteUser(uid: string): Promise<void> {
-        await UserModel.deleteOne({ uid }).exec();
+    async deleteUser(uid: string, reason?: string): Promise<void> {
+        const user = await UserModel.findOne({ uid }).exec();
+        if (user) {
+            await DeletedUserModel.create({
+                uid: user.uid,
+                email: user.email,
+                fullName: user.fullName,
+                authProvider: user.authProvider || "unknown",
+                deletedReason: reason,
+            });
+            await UserModel.deleteOne({ uid }).exec();
+        }
     }
 
     async updateProfilePic(uid: string, profilePicUrl: string): Promise<String | null> {
@@ -102,11 +113,21 @@ export class UserRepository implements IUserRepository {
         return doc ? doc : null;
     }
 
-    async deleteUserById(id: string): Promise<void> {
+    async deleteUserById(id: string, reason?: string): Promise<void> {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return;
         }
-        await UserModel.findByIdAndDelete(id).exec();
+        const user = await UserModel.findById(id).exec();
+        if (user) {
+            await DeletedUserModel.create({
+                uid: user.uid,
+                email: user.email,
+                fullName: user.fullName,
+                authProvider: user.authProvider || "unknown",
+                deletedReason: reason,
+            });
+            await UserModel.findByIdAndDelete(id).exec();
+        }
     }
 
     async getUsersWithPushyTokens(isSubscribed?: boolean): Promise<Array<string>> {
