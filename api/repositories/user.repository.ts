@@ -32,7 +32,7 @@ export class UserRepository implements IUserRepository {
             ];
         }
         const [users, total] = await Promise.all([
-            UserModel.find(filter).skip((page - 1) * size).limit(size),
+            UserModel.find(filter).sort({ createdAt: -1 }).skip((page - 1) * size).limit(size),
             UserModel.countDocuments(filter)
         ]);
         return { users, total };

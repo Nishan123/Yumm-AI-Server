@@ -25,7 +25,7 @@ export class RecipeRepository implements IRecipeReposiory {
             ];
         }
         const [recipe, total] = await Promise.all([
-            RecipeModel.find(filter).skip((page - 1) * size).limit(size),
+            RecipeModel.find(filter).sort({ createdAt: -1 }).skip((page - 1) * size).limit(size),
             RecipeModel.countDocuments(filter)
         ]);
         return { recipe, total };
@@ -73,7 +73,7 @@ export class RecipeRepository implements IRecipeReposiory {
             ];
         }
         const [recipe, total] = await Promise.all([
-            RecipeModel.find(filter).skip((page - 1) * size).limit(size),
+            RecipeModel.find(filter).sort({ createdAt: -1 }).skip((page - 1) * size).limit(size),
             RecipeModel.countDocuments(filter)
         ]);
         return { recipe, total };
@@ -114,7 +114,7 @@ export class RecipeRepository implements IRecipeReposiory {
     }
 
     async getCurrentUserRecipe(userId: string): Promise<Array<IRecipe>> {
-        const docs = await RecipeModel.find({ generatedBy: userId }).limit(15);
+        const docs = await RecipeModel.find({ generatedBy: userId }).sort({ createdAt: -1 }).limit(15);
         return docs;
     }
     async saveRecipe(newRecipe: IRecipe): Promise<IRecipe> {
