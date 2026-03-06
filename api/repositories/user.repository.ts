@@ -17,6 +17,7 @@ export interface IUserRepository {
     deleteUser(uid: string, reason?: string): Promise<void>;
     deleteUserById(id: string, reason?: string): Promise<void>;
     getUsersWithPushyTokens(isSubscribed?: boolean): Promise<Array<string>>;
+    getUsersForNotification(isSubscribed?: boolean): Promise<Array<IUser>>;
 }
 
 
@@ -148,5 +149,13 @@ export class UserRepository implements IUserRepository {
 
         console.log(`[UserRepository] Found ${tokens.length} users with push tokens.`);
         return tokens;
+    }
+
+    async getUsersForNotification(isSubscribed?: boolean): Promise<Array<IUser>> {
+        const query: any = {};
+        if (isSubscribed !== undefined) {
+            query.isSubscribedUser = isSubscribed;
+        }
+        return await UserModel.find(query).exec();
     }
 }
