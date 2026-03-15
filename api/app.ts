@@ -22,16 +22,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Ensure DB connection on every request (must be before routes)
-app.use(async (req, res, next) => {
-    try {
-        await connectToDb();
-    } catch (error) {
-        console.error("Database connection failed:", error);
-        return res.status(500).json({ success: false, message: "Database connection failed" });
-    }
-    next();
-});
+
 
 // Serve static files from public directory
 app.use("/public", express.static(path.join(process.cwd(), "public")));
