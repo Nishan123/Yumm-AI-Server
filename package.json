@@ -21,6 +21,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^7.0.9",
     "@types/uuid": "^9.0.8",
+    "apple-signin-auth": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "class-validator": "^0.14.3",
     "cloudinary": "^1.41.3",

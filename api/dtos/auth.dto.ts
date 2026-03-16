@@ -38,6 +38,13 @@ export const GoogleAuthDto = z.object({
 });
 export type GoogleAuthDto = z.infer<typeof GoogleAuthDto>;
 
+// Apple OAuth DTO
+export const AppleAuthDto = z.object({
+    idToken: z.string().min(1, { error: "Apple ID token is required" }),
+    fullName: z.string().optional(),
+});
+export type AppleAuthDto = z.infer<typeof AppleAuthDto>;
+
 // Admin Create User DTO - for admin to create users
 export const CreateUserDto = UserScheme.pick({
     fullName: true,

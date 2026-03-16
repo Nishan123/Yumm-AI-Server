@@ -20,13 +20,13 @@ async function startServer() {
     
     // For local development
     if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
-      app.listen(PORT, () => {
-        console.log(`Server running locally on port ${PORT}`);
+      app.listen(PORT as number, '0.0.0.0', () => {
+        console.log(`Server running locally on port ${PORT} at 0.0.0.0`); // Trigger restart for new .env
       });
     }
   } catch (err) {
     console.error("Failed to start server due to database connection error:", err);
-    process.exit(1); // Exit completely if DB connection fails
+    process.exit(1);
   }
 }
 

@@ -11,6 +11,7 @@ router.post("/auth/register", authController.register);
 router.post("/auth/login", authController.login);
 router.post("/auth/google", authController.googleLogin);
 router.post("/auth/forgot-password", authController.sendResetPasswordEmail);
+router.post("/auth/apple", authController.appleLogin);
 router.post("/auth/reset-password/:token", authController.resetPassword);
 
 // Authenticated user profile update

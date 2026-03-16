@@ -1,8 +1,9 @@
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import appleSignin from "apple-signin-auth";
 import { JWT_SECRET, GOOGLE_CLIENT_ID, CLIENT_URL } from "../config";
-import { RegisterDto, LoginDto, GoogleAuthDto, ResetPasswordDto } from "../dtos/auth.dto";
+import { RegisterDto, LoginDto, GoogleAuthDto, ResetPasswordDto, AppleAuthDto } from "../dtos/auth.dto";
 import { HttpError } from "../errors/http-error";
 import { IUserRepository, UserRepository } from "../repositories/user.repository";
 import { UserType } from "../types/user.type";
@@ -142,6 +143,59 @@ export class AuthService {
             : user;
         const { password, _id, __v, ...safeUser } = userObj;
         return safeUser;
+    }
+
+    // apple sign in 
+    async appleLogin(payload: AppleAuthDto): Promise<{ token: string; user: SafeUser; isNewUser: boolean }> {
+        const data = AppleAuthDto.parse(payload);
+
+        let applePayload;
+        try {
+            // Verify Apple ID token
+            applePayload = await appleSignin.verifyIdToken(data.idToken, {
+                // we can ignore audience for now if we don't have the explicit apple client app bundle ID configuring env.
+                ignoreExpiration: true,
+            });
+        } catch (error) {
+            console.error("Apple token verification error:", error);
+            throw new HttpError(401, "Invalid Apple token");
+        }
+
+        if (!applePayload || !applePayload.email) {
+            throw new HttpError(401, "Invalid Apple token payload (missing email)");
+        }
+
+        const email = applePayload.email.toLowerCase();
+        const existingUser = await this.userRepository.getUserByEmail(email);
+
+        if (existingUser) {
+            const token = this.generateToken(existingUser);
+            return { token, user: this.sanitizeUser(existingUser), isNewUser: false };
+        }
+
+        // New user
+        let fullName = data.fullName;
+        if (!fullName) {
+            fullName = email.split("@")[0];
+        }
+
+        const newUser: UserType = {
+            uid: uuidv4(),
+            fullName: fullName,
+            email: email,
+            profilePic: "", 
+            allergenicIngredients: [],
+            authProvider: "apple",
+            role: "user",
+            password: undefined,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isSubscribedUser: false,
+        };
+
+        const created = await this.userRepository.createUser(newUser);
+        const token = this.generateToken(created);
+        return { token, user: this.sanitizeUser(created), isNewUser: true };
     }
 
     // Update user profile (for authenticated users)
