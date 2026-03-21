@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
-import { connectToDb } from "./database/connect-db";
 import userRoutes from "./routes/user.route";
 import authRoutes from "./routes/auth.route";
 import recipeRoutes from "./routes/recipe.route";
