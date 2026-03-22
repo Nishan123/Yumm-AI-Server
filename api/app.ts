@@ -14,6 +14,8 @@ import userNotificationRoutes from "./routes/user-notification.route";
 import { dashboardRoutes } from "./routes/admin/dashboard.route";
 import webhookRoutes from "./routes/webhook.route";
 import shoppingListRoutes from "./routes/shopping-list.route";
+import kitchenToolRoutes from "./routes/kitchen-tool.route";
+
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use("/api", adminBugReportRoutes);
 app.use("/api", notificationRoutes);
 app.use("/api", userNotificationRoutes);
 app.use("/api", shoppingListRoutes);
+app.use("/api", kitchenToolRoutes);
+
 app.use("/api/admin/dashboard", dashboardRoutes);
 app.use("/api/webhooks", webhookRoutes);
 

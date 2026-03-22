@@ -1,4 +1,10 @@
-import { Schema } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
+import { kitchenToolsType } from "../types/kitchen-tool.type";
+
+export interface IKitchenTools extends kitchenToolsType, Document{
+    createdAt:Date;
+    updatedAt:Date;
+}
 
 export const KitchenToolSchema: Schema = new Schema(
     {
@@ -7,5 +13,7 @@ export const KitchenToolSchema: Schema = new Schema(
         imageUrl: { type: String, required: true },
         isReady: { type: Boolean, default: false },
     },
-    { _id: false }
+    { timestamps: true }
 );
+
+export const KitchenToolModel = mongoose.model<IKitchenTools>("Kitchen-tool", KitchenToolSchema);
