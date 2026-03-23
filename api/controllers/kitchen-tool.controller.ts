@@ -16,7 +16,7 @@ export class KitchenToolController {
                 return sendError(res, "Missing required fields: toolId, toolName, or imageUrl", 400);
             }
 
-            const tool = await kitchenToolService.saveKitchenTool({ toolId, toolName, imageUrl }, uid);
+            const tool = await kitchenToolService.saveKitchenTool({ uid, toolId, toolName, imageUrl }, uid);
             return sendSuccess(res, tool, 201, "Kitchen tool saved successfully");
         } catch (error: any) {
             console.error("Error in saveTool controller:", error);

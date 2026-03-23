@@ -10,7 +10,9 @@ export type CreateKitchenToolDto = z.infer<typeof CreateKitchenToolDto>;
 // Update Kitchen Tool DTO
 export const UpdateKitchenToolDto = kitchenToolsScheme.pick({
     toolId: true,
+
 }).extend({
+    uid: kitchenToolsScheme.shape.uid.optional(),
     toolName: kitchenToolsScheme.shape.toolName.optional(),
     imageUrl: kitchenToolsScheme.shape.imageUrl.optional(),
 });

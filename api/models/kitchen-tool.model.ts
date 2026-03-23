@@ -8,6 +8,7 @@ export interface IKitchenTools extends kitchenToolsType, Document{
 
 export const KitchenToolSchema: Schema = new Schema(
     {
+        uid: {type: String, required:true},
         toolId: { type: String, required: true },
         toolName: { type: String, required: true },
         imageUrl: { type: String, required: true },
