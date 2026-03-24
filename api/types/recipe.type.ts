@@ -1,6 +1,13 @@
 import { z } from "zod";
 import { IngredientScheme } from "./ingredient.type";
-import { kitchenToolsScheme } from "./kitchen-tool.type";
+
+// Recipe-specific kitchen tool scheme (no uid - recipes don't need user association)
+export const RecipeKitchenToolScheme = z.object({
+    toolId: z.string().min(1, { error: "Kitchen toolId required" }),
+    toolName: z.string().min(1, { error: "Kitchen tool name required" }),
+    imageUrl: z.string().min(1, { error: "Kitchen tool image url" }),
+    isReady: z.boolean().default(false),
+});
 
 export const InstructionScheme = z.object({
     id: z.string().min(1, { error: "Instruction ID required" }),
@@ -15,7 +22,7 @@ export const RecipeScheme = z.object({
     ingredients: z.array(IngredientScheme).min(1, { error: "Ingredients required" }),
     steps: z.array(InstructionScheme).min(1, { error: "Steps Required" }),
     initialPreparation: z.array(InstructionScheme).min(1, { error: "Initial preparation steps required" }),
-    kitchenTools: z.array(kitchenToolsScheme).min(1, { error: "Ktichen tools required" }),
+    kitchenTools: z.array(RecipeKitchenToolScheme).min(1, { error: "Kitchen tools required" }),
     experienceLevel: z.enum(["newBie", "canCook", "expert"]),
     estCookingTime: z.string().min(1, { error: "Estimated time required" }),
     description: z.string().min(1, { error: "Description required" }),

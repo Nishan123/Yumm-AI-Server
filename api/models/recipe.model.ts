@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { RecipeType } from "../types/recipe.type";
 import { IngredientSchema } from "./ingredient.model";
-import { KitchenToolSchema } from "./kitchen-tool.model";
 
 // Define InstructionSchema inline to avoid any import issues
 const InstructionSubSchema = new Schema(
@@ -23,6 +22,16 @@ const InitialPreparationSubSchema = new Schema(
     { _id: false }
 );
 
+// Recipe-specific kitchen tool schema (no uid - recipes don't need user association)
+const RecipeKitchenToolSchema = new Schema(
+    {
+        toolId: { type: String, required: true },
+        toolName: { type: String, required: true },
+        imageUrl: { type: String, required: true },
+        isReady: { type: Boolean, default: false },
+    },
+    { _id: false }
+);
 
 const NutritionSchema: Schema = new Schema(
     {
@@ -50,7 +59,7 @@ const RecipeSchema: Schema = new Schema(
             required: true,
             default: [],
         },
-        kitchenTools: { type: [KitchenToolSchema], required: true },
+        kitchenTools: { type: [RecipeKitchenToolSchema], required: true },
         experienceLevel: { type: String, enum: ["newBie", "canCook", "expert"], required: true },
         estCookingTime: { type: String, required: true },
         description: { type: String, required: true },
