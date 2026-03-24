@@ -8,8 +8,7 @@ import { HttpError } from "../errors/http-error";
 import { IUserRepository, UserRepository } from "../repositories/user.repository";
 import { UserType } from "../types/user.type";
 import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
-import path from "path";
+
 import { sendEmail } from "../config/email";
 import { getResetPasswordEmailTemplate } from "../templates/reset-password-email";
 
@@ -183,7 +182,7 @@ export class AuthService {
             uid: uuidv4(),
             fullName: fullName,
             email: email,
-            profilePic: "", 
+            profilePic: "",
             allergenicIngredients: [],
             authProvider: "apple",
             role: "user",
@@ -198,7 +197,6 @@ export class AuthService {
         return { token, user: this.sanitizeUser(created), isNewUser: true };
     }
 
-    // Update user profile (for authenticated users)
     async updateUserProfile(uid: string, updates: any, file?: Express.Multer.File): Promise<SafeUser | null> {
         const existing = await this.userRepository.getUser(uid);
         if (!existing) {
@@ -206,29 +204,7 @@ export class AuthService {
         }
 
         if (file) {
-            const port = process.env.PORT || 5000;
-            const ext = path.extname(file.originalname).toLowerCase();
-            const oldPath = file.path;
-
-            // Generate standard filename
-            const newFilename = `pp-${uid}${ext}`;
-            const newPath = path.join(path.dirname(oldPath), newFilename);
-
-            // Only rename if the filename is different (avoid renaming to self)
-            if (file.filename !== newFilename) {
-                try {
-                    // If target file exists and it's not the same file, delete it first (Windows requirement sometimes)
-                    if (fs.existsSync(newPath) && path.resolve(oldPath) !== path.resolve(newPath)) {
-                        fs.unlinkSync(newPath);
-                    }
-                    fs.renameSync(oldPath, newPath);
-                } catch (error) {
-                    console.error("Error renaming profile pic:", error);
-                    throw new HttpError(500, "Failed to process profile picture");
-                }
-            }
-
-            updates.profilePic = `http://localhost:${port}/public/profilePic/${newFilename}`;
+            updates.profilePic = file.path;
         }
 
         const updatedUser = await this.userRepository.updateUser(uid, updates);
