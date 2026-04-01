@@ -16,6 +16,52 @@ export class UserRecipeService {
         this.recipeRepository = recipeRepository;
     }
 
+    private mapRecipeToTempUserRecipe(recipe: IRecipe, userId: string): IUserRecipe {
+        const tempUserRecipeId = `temp-${recipe.recipeId}`;
+
+        return {
+            userRecipeId: tempUserRecipeId,
+            userId: userId,
+            originalRecipeId: recipe.recipeId,
+            originalGeneratedBy: recipe.generatedBy,
+            recipeName: recipe.recipeName,
+            ingredients: recipe.ingredients.map(ing => ({
+                ingredientId: ing.ingredientId,
+                name: ing.name,
+                quantity: ing.quantity,
+                unit: ing.unit,
+                imageUrl: ing.imageUrl,
+                isReady: (ing as any).isReady || false,
+            })),
+            steps: recipe.steps.map((step: any) => ({
+                id: step.id,
+                instruction: step.instruction || step.step,
+                isDone: step.isDone || false,
+            })),
+            initialPreparation: recipe.initialPreparation.map((prep: any) => ({
+                id: prep.id,
+                instruction: prep.instruction || prep.step,
+                isDone: prep.isDone || false,
+            })),
+            kitchenTools: recipe.kitchenTools.map((tool: any) => ({
+                toolId: tool.toolId,
+                toolName: tool.toolName,
+                imageUrl: tool.imageUrl,
+                isReady: tool.isReady || false,
+            })),
+            experienceLevel: recipe.experienceLevel,
+            estCookingTime: recipe.estCookingTime,
+            description: recipe.description,
+            mealType: recipe.mealType,
+            cuisine: recipe.cuisine,
+            calorie: recipe.calorie,
+            images: recipe.images,
+            nutrition: recipe.nutrition,
+            servings: recipe.servings,
+            addedAt: recipe.createdAt,
+        } as unknown as IUserRecipe;
+    }
+
     /**
      * Save a private recipe directly to user's cookbook
      * This is used when a user generates a recipe and marks it as private.
@@ -161,49 +207,7 @@ export class UserRecipeService {
         }
 
         const transformedGeneratedRecipes: IUserRecipe[] = userGeneratedRecipes.map((recipe: IRecipe) => {
-            const tempUserRecipeId = `temp-${recipe.recipeId}`;
-
-            return {
-                userRecipeId: tempUserRecipeId,
-                userId: userId,
-                originalRecipeId: recipe.recipeId,
-                originalGeneratedBy: recipe.generatedBy,
-                recipeName: recipe.recipeName,
-                ingredients: recipe.ingredients.map(ing => ({
-                    ingredientId: ing.ingredientId,
-                    name: ing.name,
-                    quantity: ing.quantity,
-                    unit: ing.unit,
-                    imageUrl: ing.imageUrl,
-                    isReady: false,
-                })),
-                steps: recipe.steps.map((step: any) => ({
-                    id: step.id,
-                    instruction: step.instruction || step.step,
-                    isDone: false,
-                })),
-                initialPreparation: recipe.initialPreparation.map((prep: any) => ({
-                    id: prep.id,
-                    instruction: prep.instruction || prep.step,
-                    isDone: false,
-                })),
-                kitchenTools: recipe.kitchenTools.map(tool => ({
-                    toolId: tool.toolId,
-                    toolName: tool.toolName,
-                    imageUrl: tool.imageUrl,
-                    isReady: false,
-                })),
-                experienceLevel: recipe.experienceLevel,
-                estCookingTime: recipe.estCookingTime,
-                description: recipe.description,
-                mealType: recipe.mealType,
-                cuisine: recipe.cuisine,
-                calorie: recipe.calorie,
-                images: recipe.images,
-                nutrition: recipe.nutrition,
-                servings: recipe.servings,
-                addedAt: recipe.createdAt,
-            } as IUserRecipe;
+            return this.mapRecipeToTempUserRecipe(recipe, userId);
         });
 
         // Combine both lists, with cookbook recipes first
@@ -224,6 +228,12 @@ export class UserRecipeService {
      * Get a specific user recipe by its ID
      */
     async getUserRecipe(userRecipeId: string): Promise<IUserRecipe | null> {
+        if (userRecipeId.startsWith('temp-')) {
+            const originalRecipeId = userRecipeId.replace('temp-', '');
+            const originalRecipe = await this.recipeRepository.getRecipe(originalRecipeId);
+            if (!originalRecipe) return null;
+            return this.mapRecipeToTempUserRecipe(originalRecipe, originalRecipe.generatedBy);
+        }
         return this.userRecipeRepository.getUserRecipe(userRecipeId);
     }
 
@@ -238,6 +248,28 @@ export class UserRecipeService {
      * Update user's recipe progress (check/uncheck ingredients, instructions, etc.)
      */
     async updateUserRecipe(userRecipeId: string, updates: Partial<IUserRecipe>): Promise<IUserRecipe | null> {
+        if (userRecipeId.startsWith('temp-')) {
+            const originalRecipeId = userRecipeId.replace('temp-', '');
+            const originalRecipe = await this.recipeRepository.getRecipe(originalRecipeId);
+            if (!originalRecipe) return null;
+
+            if (updates.ingredients) {
+                originalRecipe.ingredients = updates.ingredients as any;
+            }
+            if (updates.steps) {
+                originalRecipe.steps = updates.steps as any;
+            }
+            if (updates.initialPreparation) {
+                originalRecipe.initialPreparation = updates.initialPreparation as any;
+            }
+            if (updates.kitchenTools) {
+                originalRecipe.kitchenTools = updates.kitchenTools as any;
+            }
+
+            const updatedOriginal = await this.recipeRepository.updateRecipe(originalRecipe);
+            return this.mapRecipeToTempUserRecipe(updatedOriginal, updatedOriginal.generatedBy);
+        }
+
         const existing = await this.userRecipeRepository.getUserRecipe(userRecipeId);
         if (!existing) {
             return null;
@@ -282,6 +314,20 @@ export class UserRecipeService {
      * Reset progress for a user's recipe (uncheck all items)
      */
     async resetProgress(userRecipeId: string): Promise<IUserRecipe | null> {
+        if (userRecipeId.startsWith('temp-')) {
+            const originalRecipeId = userRecipeId.replace('temp-', '');
+            const originalRecipe = await this.recipeRepository.getRecipe(originalRecipeId);
+            if (!originalRecipe) return null;
+
+            originalRecipe.ingredients.forEach((ing: any) => ing.isReady = false);
+            originalRecipe.steps.forEach((step: any) => step.isDone = false);
+            originalRecipe.initialPreparation.forEach((prep: any) => prep.isDone = false);
+            originalRecipe.kitchenTools.forEach((tool: any) => tool.isReady = false);
+
+            const updatedOriginal = await this.recipeRepository.updateRecipe(originalRecipe);
+            return this.mapRecipeToTempUserRecipe(updatedOriginal, updatedOriginal.generatedBy);
+        }
+
         const existing = await this.userRecipeRepository.getUserRecipe(userRecipeId);
         if (!existing) {
             return null;
@@ -323,6 +369,31 @@ export class UserRecipeService {
      * Used when a user edits their cookbook recipe
      */
     async fullUpdateUserRecipe(userRecipeId: string, updates: Partial<IUserRecipe>): Promise<IUserRecipe | null> {
+        if (userRecipeId.startsWith('temp-')) {
+            const originalRecipeId = userRecipeId.replace('temp-', '');
+            const originalRecipe = await this.recipeRepository.getRecipe(originalRecipeId);
+            if (!originalRecipe) return null;
+
+            // Map fields back to original recipe
+            if (updates.recipeName) originalRecipe.recipeName = updates.recipeName;
+            if (updates.ingredients) originalRecipe.ingredients = updates.ingredients as any;
+            if (updates.steps) originalRecipe.steps = updates.steps as any;
+            if (updates.initialPreparation) originalRecipe.initialPreparation = updates.initialPreparation as any;
+            if (updates.kitchenTools) originalRecipe.kitchenTools = updates.kitchenTools as any;
+            if (updates.experienceLevel) originalRecipe.experienceLevel = updates.experienceLevel;
+            if (updates.estCookingTime) originalRecipe.estCookingTime = updates.estCookingTime;
+            if (updates.description) originalRecipe.description = updates.description;
+            if (updates.mealType) originalRecipe.mealType = updates.mealType;
+            if (updates.cuisine) originalRecipe.cuisine = updates.cuisine;
+            if (updates.calorie !== undefined) originalRecipe.calorie = updates.calorie;
+            if (updates.images) originalRecipe.images = updates.images;
+            if (updates.nutrition) originalRecipe.nutrition = updates.nutrition as any;
+            if (updates.servings !== undefined) originalRecipe.servings = updates.servings;
+
+            const updatedOriginal = await this.recipeRepository.updateRecipe(originalRecipe);
+            return this.mapRecipeToTempUserRecipe(updatedOriginal, updatedOriginal.generatedBy);
+        }
+
         const existing = await this.userRecipeRepository.getUserRecipe(userRecipeId);
         if (!existing) {
             return null;
