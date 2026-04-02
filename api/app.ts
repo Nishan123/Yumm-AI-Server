@@ -11,6 +11,7 @@ import bugReportRoutes from "./routes/bug-report.route";
 import adminBugReportRoutes from "./routes/admin/bug-report.route";
 import notificationRoutes from "./routes/notification.route";
 import userNotificationRoutes from "./routes/user-notification.route";
+import foodPrefRoute from "./routes/food-preference.route";
 import { dashboardRoutes } from "./routes/admin/dashboard.route";
 import webhookRoutes from "./routes/webhook.route";
 import shoppingListRoutes from "./routes/shopping-list.route";
@@ -46,6 +47,7 @@ app.use("/api", notificationRoutes);
 app.use("/api", userNotificationRoutes);
 app.use("/api", shoppingListRoutes);
 app.use("/api", kitchenToolRoutes);
+app.use("/api", foodPrefRoute);
 
 app.use("/api/admin/dashboard", dashboardRoutes);
 app.use("/api/webhooks", webhookRoutes);
